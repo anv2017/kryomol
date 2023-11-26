@@ -1,0 +1,5 @@
+-Reading of orbital coefficients when loading folders
+-Synchronize UVWidget options with plotspectrum
+-Implement reading of IR/Raman computations from folders
+-Implement reading of optical rotation data from folder
+-Drop fidarray class
