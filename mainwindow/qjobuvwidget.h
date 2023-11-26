@@ -39,7 +39,7 @@ private:
 private slots:
     void OnShowUVSpectrum (bool bshow);
     void OnUVTypeChanged(QPlotSpectrum::SpectrumType);
-
+    void OnFrameChanged(size_t fidx);
 
 private:
     bool m_beta;

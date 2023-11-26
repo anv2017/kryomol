@@ -166,19 +166,20 @@ size_t World::CurrentMoleculeIndex() const
    */
 void  World::SelectFrame ( size_t frame )
 {
-  if ( CurrentMolecule() )
-  {
+  if (!CurrentMolecule() ) return;
+
     if ( frame >= CurrentMolecule()->Frames().size() )
     {
       std::cerr << "World:: Invalid frame index" << frame << std::endl;
       return;
     }
+
     CurrentMolecule()->SetCurrentFrame ( frame );
 
     if ( m_visor ) m_visor->Center();
 
     emit currentFrame ( frame );
-  }
+
 }
 
 /** \brief select a molecule inside the world*

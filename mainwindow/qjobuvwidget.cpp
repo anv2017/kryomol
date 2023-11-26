@@ -63,6 +63,9 @@ void QJobUVWidget::Init()
     this->addWidget(m_uvwidget);
 
     SetWorld(world);
+
+    connect(world,SIGNAL(currentFrame(size_t)),this,SLOT(OnFrameChanged(size_t)));
+
 }
 
 void QJobUVWidget::OnShowUVSpectrum ( bool bshow )
@@ -142,4 +145,9 @@ void QJobUVWidget::OnUVTypeChanged ( QPlotSpectrum::SpectrumType t )
   if ( ! w ) return;
 
   w->GetSpectrum()->SetType(t);
+}
+
+void QJobUVWidget::OnFrameChanged(size_t findex)
+{
+  m_uvwidget->InitTable(findex);
 }
