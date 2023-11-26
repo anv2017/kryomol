@@ -14,7 +14,7 @@
 using namespace kryomol;
 
 KryoVisorOptical::KryoVisorOptical(World* world,QWidget* parent, const QGLWidget* shareWidget, Qt::WindowFlags f ) :
-        KryoVisor(world,parent,shareWidget,f), m_bshowelectricdipole(false), m_bshowmagneticdipole(false), m_bshowvelocitydipole(false)
+    KryoVisor(world,parent,shareWidget,f), m_bshowelectricdipole(false), m_bshowmagneticdipole(false), m_bshowvelocitydipole(false)
 {
     m_activetransition=0;
     m_bshowtransitionchanges=false;
@@ -121,11 +121,12 @@ void KryoVisorOptical::RenderDipole(const kryomol::Coordinate& dipole, const QCo
 
 void KryoVisorOptical::RenderScreenText()
 {
-  std::stringstream label;
-  label << "Current active transition: #" << m_activetransition +1;
-  QString str ( label.str().c_str() );
-  QColor col ( QColor ( 255,255,255 ) );
-  qglColor ( col );
-  renderText ( rect().left() +30,rect().bottom() - 30,str,GLFont() );
+    KryoVisor::RenderScreenText();
+    std::stringstream label;
+    label << "Current active transition: #" << m_activetransition +1;
+    QString str ( label.str().c_str() );
+    QColor col ( QColor ( 255,255,255 ) );
+    qglColor ( col );
+    renderText ( rect().right() -200,rect().bottom() - 30,str,GLFont() );
 }
 
