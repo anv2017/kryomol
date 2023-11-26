@@ -158,32 +158,45 @@ bool UVSpectrum::WriteJCampDX()
     std::ofstream output(m_file.c_str());
 
     if(!output)
+    {
+        std::cout << "cannot open file:" << m_file.c_str() << std::endl;
         return false;
+    }
 
     output <<  "##TITLE= " << m_title.c_str() << std::endl;
     output <<  "##JCAMP-DX= " << jcampversion.c_str() << std::endl;
+    output << "##DATA TYPE= " << "LINK" << std::endl;
 
-    if (m_spectrumtype == QPlotSpectrum::UV)
-        output << "##DATA TYPE= " << "UV SPECTRUM" << std::endl;
-
-    if (m_spectrumtype == QPlotSpectrum::ECD)
-        output << "##DATA TYPE= " << "ECD SPECTRUM" << std::endl;
 
     output << "##ORIGIN= " << "KryoMol" << std::endl;
 
-    output << "##NBLOCKS= " << m_linesets.size() << std::endl;
+    //include total data
+    output << "##BLOCKS= " << m_linesets.size()+1 << std::endl;
 
     //loop over the number of conformations
-    for(size_t i=0;i<m_data.size();++i)
+    for(size_t i=0;i<m_data.size()+1;++i)
     {
+        const fidarray* pd=nullptr;
+        if (i < m_data.size() )
+        {
+            pd=&m_data.at(i);
+        }
+        else pd=&m_totaldata;
 
-        const fidarray& d=m_data.at(i);
-        output << "BLOCK_ID= " << (i+1) << std::endl;
+        const fidarray& d=*pd;
+        output <<  "##TITLE= " << m_title.c_str() << std::endl;
+        output <<  "##JCAMP-DX= " << jcampversion.c_str() << std::endl;
+        if (m_spectrumtype == QPlotSpectrum::UV)
+            output << "##DATA TYPE= " << "UV SPECTRUM" << std::endl;
+
+        if (m_spectrumtype == QPlotSpectrum::ECD)
+            output << "##DATA TYPE= " << "ECD SPECTRUM" << std::endl;
+        output << "##BLOCK_ID= " << (i+1) << std::endl;
         output << "##XUNITS= NM" << std::endl;
         qWarning() << "take care here with the units, revise" << Qt::endl;
         output << "##YUNITS= ABSORBANCE" << std::endl;
         output << "##XFACTOR= " << 1.0f << std::endl;
-        output << "##YFACTOR= " << 0.01f << std::endl;  //0.01 f should be appropiate
+        output << "##YFACTOR= " << 1.0f << std::endl;  //0.01 f should be appropiate
         output << "##FIRSTX= " <<  m_min << std::endl;
         output << "##LASTX= " << m_max << std::endl;
         output << "##NPOINTS= " << m_npoints << std::endl;
@@ -193,7 +206,7 @@ bool UVSpectrum::WriteJCampDX()
         float increment=(m_max-m_min)/(m_npoints-1);
         for (size_t  i=0; i< d.size();i++)
         {
-            output << m_min+i*increment << "   " << d[m_npoints-1-i].real() << std::endl;
+            output << m_min+i*increment << "   " << std::uppercase << d[i].real() << std::nouppercase<< std::endl;
 
         }
 
