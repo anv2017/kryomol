@@ -1,0 +1,27 @@
+Open Babel AUTHORS
+-------------------
+
+Main Author: Armando Navarro-Vázquez
+
+e-mail: armando.deus@gmail.com
+
+Contributors:
+
+Noa Campos López ( Orbital rendering and some other contributions )
+
+KryoMol makes use of the following 3d party  open-source software
+
+GNU GSL wavelet and DFT code
+https://www.gnu.org/software/gsl/
+
+GL2PS 
+http://www.geuz.org/gl2ps/
+
+QWT6
+http://qwt.sourceforge.net/
+
+SSE MATH
+http://gruntthepeon.free.fr/ssemath/
+
+CCMATH: (optional)
+http://freshmeat.sourceforge.net/projects/ccmath

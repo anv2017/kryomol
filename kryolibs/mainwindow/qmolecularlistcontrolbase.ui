@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QMolecularListControlBase</class>
+ <widget class="QWidget" name="QMolecularListControlBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>417</width>
+    <height>595</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form1</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <widget class="QFrame" name="_listFrame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="whatsThis">
+        <string>Read relative energies for the different conformers , in kcal/mol from a text file or paste them froma spreadsheet program. Energies should be stored in rows. Example:
+
+0.3
+0.4
+0.8</string>
+       </property>
+       <property name="title">
+        <string>Energies</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPushButton" name="_readEnergiesButton">
+          <property name="whatsThis">
+           <string>Read energies (kcal/mol) from a text file. Press the calculate button to refresh populations values.</string>
+          </property>
+          <property name="text">
+           <string>Read</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="_pasteEnergiesButton">
+          <property name="whatsThis">
+           <string>Paste energies from a spreadsheet. Press the Calculate button to refresh populations values.</string>
+          </property>
+          <property name="text">
+           <string>Paste</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="whatsThis">
+        <string>Read populations from a text file or paste them from a spreadsheet program. Populations will be normalized to 1 (100% ) after reading.</string>
+       </property>
+       <property name="title">
+        <string>Populations</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QPushButton" name="_readPopulationsButton">
+          <property name="whatsThis">
+           <string>Read populations from a text file</string>
+          </property>
+          <property name="text">
+           <string>Read</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="_pastePopulationsButton">
+          <property name="whatsThis">
+           <string>Paste populations from a spreadsheet program</string>
+          </property>
+          <property name="text">
+           <string>Paste</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="_ensambleGroup">
+       <property name="whatsThis">
+        <string>Set the type of ensamble. In a NVE ensamble all conformers will have the same populations, whereas in a NVT ensamble (constant temperature ) population will be computed according to Boltzmann statistics, if potential energies are defined for each conformer.</string>
+       </property>
+       <property name="title">
+        <string>Ensamble</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="_nveRadioButton">
+          <property name="toolTip">
+           <string>Constant energy ensamble</string>
+          </property>
+          <property name="whatsThis">
+           <string>Choose a constant energy ensamble</string>
+          </property>
+          <property name="text">
+           <string>NVE</string>
+          </property>
+          <property name="shortcut">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QRadioButton" name="_nvtRadioButton">
+          <property name="toolTip">
+           <string>Constant temperature ensamble</string>
+          </property>
+          <property name="text">
+           <string>NVT</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="textLabel2">
+         <property name="text">
+          <string>Temperature</string>
+         </property>
+         <property name="wordWrap">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="_TLineEdit">
+         <property name="whatsThis">
+          <string>Set the temperature (Kelvin) of the NVT ensamble</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="_calculateButton">
+         <property name="whatsThis">
+          <string>Calculate populations. If a NVE ( constant energy ) ensamble is chosen, all conformers will have the same population. If potential energies are available and a NVT (constant temperature ) ensamble is chosen, populations will be computed according to Boltzmann statistics.</string>
+         </property>
+         <property name="text">
+          <string>Calculate</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <resources/>
+ <connections/>
+</ui>

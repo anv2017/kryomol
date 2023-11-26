@@ -1,0 +1,7 @@
+Unix installation
+Requirements: Qt5 libraries
+
+1) Modify the installdir_unix file to match your preferred installation directory
+2) qmake (qmake-qt5 in some platforms)
+3) make -j n, where n is the number of processes
+4) make install or sudo make install for user or system-wide installations respectively

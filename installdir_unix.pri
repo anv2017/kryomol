@@ -1,0 +1,1 @@
+installdir=/home/armando/bin

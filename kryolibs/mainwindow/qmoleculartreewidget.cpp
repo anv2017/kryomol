@@ -1,0 +1,132 @@
+/*****************************************************************************************
+                            qmoleculartreewidget.cpp  -  description
+                             -------------------
+This file is part of the KryoMol project.
+For more information, see <http://kryomol.sourceforge.io/>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation version 2 of the License.
+******************************************************************************************/
+
+
+#include "qmoleculartreewidget.h"
+
+#include "world.h"
+#include "qnumlistviewitem.h"
+#include "thermo.h"
+#include "molecule.h"
+
+using namespace kryomol;
+
+QMolecularTreeWidget::QMolecularTreeWidget ( QWidget* parent  )
+    : QTreeWidget ( parent ) , m_world(NULL)
+{
+    connect ( this,SIGNAL ( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ),this,SLOT ( OnItemChanged ( QTreeWidgetItem* ) ) );
+
+}
+
+
+QMolecularTreeWidget::~QMolecularTreeWidget()
+{}
+
+
+void QMolecularTreeWidget::Init()
+{
+    clear();
+    QStringList labels;
+    int ncolumns=1;
+    labels << "Conformers";
+    const std::vector<double>& populations=m_world->CurrentMolecule()->Populations();
+    if ( m_world->CurrentMolecule()->Populations().size() > 1 )
+    {
+        ncolumns++;
+        labels << "Populations (%)";
+    }
+    if ( m_world->CurrentMolecule()->Frames().back().PotentialEnergy() )
+    {
+        labels << "Energies (kcal/mol)";
+        ncolumns++;
+    }
+    setColumnCount(ncolumns);
+
+    setHeaderLabels(labels);
+
+
+    for ( size_t i=0;i<m_world->CurrentMolecule()->Frames().size();++i)
+    {
+        //m_visor->OnSelectPoint ( i-1,false );
+        QString frame,energy, venergy, kenergy,spop;
+        frame.sprintf ( "%d",static_cast<int> ( i+1 ) );
+        spop.sprintf("%.2f",populations.at(i)*100);
+        double ve;
+        const Frame& mf=m_world->CurrentMolecule()->Frames().at(i);
+        QStringList sl;
+        sl << frame <<  spop;
+        if ( mf.PotentialEnergy() )
+        {
+            ve=mf.PotentialEnergy().Value();;
+            venergy.sprintf ( "%.1f",ve );
+            sl << venergy;
+
+        }
+
+        QNumTreeWidgetItem* mitem= new QNumTreeWidgetItem ( this, sl );
+        addTopLevelItem(mitem);
+
+
+    }
+
+    setSortingEnabled(true);
+    sortItems(0,Qt::AscendingOrder);
+    for( int i=0;i<ncolumns;++i)
+        this->resizeColumnToContents(i);
+
+    OnFrame ( m_world->CurrentMolecule()->CurrentFrameIndex() );
+
+
+}
+
+
+
+void QMolecularTreeWidget::OnItemChanged ( QTreeWidgetItem* item )
+{
+
+    disconnect ( m_world,SIGNAL ( currentFrame ( size_t ) ),this,SLOT ( OnFrame ( size_t ) ) );
+    if ( !item )
+        return;
+    if ( m_world )
+    {
+        int point =item->text ( 0 ).toInt();
+        if ( point > 0 )
+            m_world->SelectFrame( point -1 );
+    }
+    connect ( m_world,SIGNAL ( currentFrame ( size_t ) ),this,SLOT ( OnFrame ( size_t ) ) );
+}
+
+
+void QMolecularTreeWidget::SetWorld ( kryomol::World* w )
+{
+    m_world=w;
+    connect ( m_world,SIGNAL ( currentFrame ( size_t ) ),this,SLOT ( OnFrame ( size_t ) ) );
+
+
+
+}
+
+void QMolecularTreeWidget::OnFrame ( size_t frame )
+{
+
+    int i=0;
+    for(;i<topLevelItemCount();++i)
+    {
+
+        if ( ( atoi ( topLevelItem(i)->text ( 0 ).toStdString().c_str() )-1 ) == (int)frame ) break;
+
+    }
+    disconnect ( this,SIGNAL ( currentItemChanged ( QTreeWidgetItem*,QTreeWidgetItem* ) ),this,SLOT ( OnItemChanged( QTreeWidgetItem* ) ) );
+    setCurrentItem ( topLevelItem( i ) );
+    connect ( this,SIGNAL ( currentItemChanged ( QTreeWidgetItem*,QTreeWidgetItem* ) ),this,SLOT ( OnItemChanged ( QTreeWidgetItem* ) ) );
+}
+
+
