@@ -69,9 +69,6 @@ private:
     void ParseGaussian();
     bool isGaussianFile();
     bool isGaussianFile(QString file);
-    bool existDensity();
-    bool existOrbitals();
-    bool existAlphaBeta();
 
 signals:
     void ParseringFinished();
@@ -152,6 +149,9 @@ private:
     QActionGroup* m_measureActions;
     QActionGroup* m_jobs;
     OrcaDialog* m_orcawidget;
+    bool m_hasdensity;
+    bool m_hasorbitals;
+    bool m_hasalphabeta;
 
 };
 

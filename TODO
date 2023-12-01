@@ -1,4 +1,7 @@
 -Reading of orbital coefficients when loading folders
+Partially done( meshes should autorefresh when changing frame, table with 
+orbitals is not shown I do not why)
+
 -Synchronize UVWidget options with plotspectrum
 -Implement reading of IR/Raman computations from folders
 -Implement reading of optical rotation data from folder
