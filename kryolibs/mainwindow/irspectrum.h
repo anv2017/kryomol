@@ -62,6 +62,8 @@ private:
   float m_linewidth;
   float m_shift;
   int m_npoints;
+  /** conformational weights*/
+  std::vector<float> m_weights;
 };
 
 #endif

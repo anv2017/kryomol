@@ -26,6 +26,7 @@ the Free Software Foundation version 2 of the License.
 #include "glvisor.h"
 #include "kryovisor.h"
 #include "renderorbitals.h"
+#include "parser.h"
 
 namespace kryomol
 {
@@ -57,7 +58,8 @@ protected:
     void UpdateRecentFiles();
 private:
     void OpenFile();
-    void OpenFolder(QString foldername);
+    void OpenUVFolder(QString foldername);
+    void OpenIRFolder(QString foldername);
     void Init();
     void InitToolBars();
     void InitGeneric();
@@ -76,7 +78,8 @@ signals:
 
 private slots:
     void OnLoadButton();
-    void OnLoadFolderButton();
+    void OnLoadUVFolderAction();
+    void OnLoadIRFolderAction();
     void OnOpenRecentFile();
     void OnOpenConfButton();
     void OnOpenPDBButton();
@@ -120,7 +123,7 @@ private slots:
     void OnUpdateFrameForOrbitals(size_t f);
 
 private:
-    void InitWidgets(bool hasdensity,bool hasorbitals);
+    void InitWidgets(kryomol::JobType,bool hasdensity,bool hasorbitals);
 protected slots:
     void OnGraphModeChanged( kryomol::GLVisor::graphmode );
     void SetBondOrders();

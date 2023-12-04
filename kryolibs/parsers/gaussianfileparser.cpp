@@ -1084,7 +1084,7 @@ bool GaussianFileParser::ParseFrequencies ( std::streampos pos )
     {
         StringTokenizer token ( line," " );
         if ( token.size() >=2 )
-            if ( token.at ( 1 ) =="AN" )
+            if ( token.at ( 0 ) =="Atom" && token.at ( 1 ) =="AN" )
             {
                 GetVectors();
             }

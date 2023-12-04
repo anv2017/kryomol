@@ -115,11 +115,18 @@ void KryoMolMainWindow::InitToolBars()
 
 
     //Add openfolder action. This is by now intended to load a folder with several ECD computations
-    QAction*   loadFolderAction = new QAction ( QIcon ( QString::fromUtf8(":/icons/fileopen.png") ),tr ( "&Open Folder" ),this );
-    loadFolderAction->setShortcut(tr("Ctrl+F"));
-    loadFolderAction->setStatusTip(tr("Open many files from a folder"));
-    connect ( loadFolderAction,SIGNAL ( triggered() ),this,SLOT ( OnLoadFolderButton() ) );
-    filemenu->addAction ( loadFolderAction );
+    QMenu* openfoldermenu = new QMenu("Open Folder");
+    filemenu->addMenu(openfoldermenu);
+    QAction*   loadUVFolderAction = new QAction ( QIcon ( QString::fromUtf8(":/icons/fileopen.png") ),tr ( "&Open UV/ECD Folder " ),this );
+    //loadFolderAction->setShortcut(tr("Ctrl+F"));
+    loadUVFolderAction->setStatusTip(tr("Open many UV/ECD files from a folder"));
+    connect ( loadUVFolderAction,SIGNAL ( triggered() ),this,SLOT ( OnLoadUVFolderAction() ) );
+    openfoldermenu->addAction ( loadUVFolderAction );
+    QAction*   loadIRFolderAction = new QAction ( QIcon ( QString::fromUtf8(":/icons/fileopen.png") ),tr ( "&Open IR/VCD Folder " ),this );
+    //loadFolderAction->setShortcut(tr("Ctrl+F"));
+    loadIRFolderAction->setStatusTip(tr("Open many IR/VCD files from a folder"));
+    connect ( loadIRFolderAction,SIGNAL ( triggered() ),this,SLOT ( OnLoadIRFolderAction() ) );
+    openfoldermenu->addAction ( loadIRFolderAction );
 
     QAction* quitAction = new QAction ( QIcon ( QString::fromUtf8(":/icons/exit.png") ),tr ( "&Quit" ),this );
     quitAction->setShortcut(tr("Ctrl+Q"));
@@ -849,11 +856,19 @@ void KryoMolMainWindow::OnLoadButton()
     OnOpenFile(filename);
 }
 
-void KryoMolMainWindow::OnLoadFolderButton()
+void KryoMolMainWindow::OnLoadUVFolderAction()
 {
     QString foldername=QFileDialog::getExistingDirectory();
     if ( foldername.isEmpty() ) return;
-    OpenFolder(foldername);
+    OpenUVFolder(foldername);
+
+}
+
+void KryoMolMainWindow::OnLoadIRFolderAction()
+{
+    QString foldername=QFileDialog::getExistingDirectory();
+    if ( foldername.isEmpty() ) return;
+    OpenIRFolder(foldername);
 
 }
 
@@ -894,7 +909,7 @@ void KryoMolMainWindow::OpenFile()
 }
 
 
-void KryoMolMainWindow::OpenFolder(QString foldername)
+void KryoMolMainWindow::OpenUVFolder(QString foldername)
 {
     QDir dir(foldername);
     QFileInfoList flist=dir.entryInfoList(QDir::Files);
@@ -955,11 +970,72 @@ void KryoMolMainWindow::OpenFolder(QString foldername)
     //Should this work ?
     SetBondOrders();
     m_world->Initialize();
-    this->InitWidgets(m_hasdensity,m_hasorbitals);
+    this->InitWidgets(kryomol::uv,m_hasdensity,m_hasorbitals);
 
 }
 
-void KryoMolMainWindow::InitWidgets(bool hasdensity,bool hasorbitals)
+void KryoMolMainWindow::OpenIRFolder(QString foldername)
+{
+    QDir dir(foldername);
+    QFileInfoList flist=dir.entryInfoList(QDir::Files);
+    //This should be a list of files containing the ecd computations
+    QStringList validfiles;
+    m_world = new kryomol::World(this,World::freqvisor);
+    m_hasdensity=m_hasorbitals=m_hasalphabeta=true;
+    for(int i=0;i<flist.size();++i)
+    {
+        QString f=flist.at(i).absoluteFilePath();
+#ifdef __MINGW32__
+        kryomol::ParserFactory factory(std::filesystem::u8path(f.toUtf8().data()));
+#else
+        kryomol::ParserFactory factory(f.toStdString().c_str());
+#endif
+        kryomol::Parser* qparser=factory.BuildParser();
+        if ( !factory.existDensity() )
+        {
+            m_hasdensity=false;
+        }
+        if ( !factory.existOrbitals() )
+        {
+            m_hasorbitals=false;
+        }
+
+        if ( !factory.existAlphaBeta() )
+        {
+            m_hasalphabeta=false;
+        }
+
+        for(const auto& j : qparser->Jobs() )
+        {
+            if ( j.type == kryomol::freq )
+            {
+                std::vector<Molecule> mol;
+                qparser->SetMolecules(&mol);
+                qparser->Parse(j.pos);
+                qparser->ParseFrequencies(j.pos);
+                if ( m_world->Molecules().empty() )
+                {
+                    m_world->Molecules().push_back(mol.back());
+                }
+                else
+                {
+                    m_world->Molecules().back().Frames().push_back(mol.back().Frames().back());
+                }
+
+            }
+        }
+        delete qparser;
+    }
+
+    qDebug() << "nframes=" << m_world->Molecules().back().Frames().size() << endl;
+
+    //Should this work ?
+    SetBondOrders();
+    m_world->Initialize();
+    this->InitWidgets(kryomol::freq,m_hasdensity,m_hasorbitals);
+}
+
+void KryoMolMainWindow::InitWidgets(kryomol::JobType t,bool hasdensity,bool hasorbitals)
 {
     //Build the stacked widget for holding the different type of jobs
     delete m_stackedwidget;
@@ -970,7 +1046,16 @@ void KryoMolMainWindow::InitWidgets(bool hasdensity,bool hasorbitals)
     //Get the initial size
     m_size = this->size();
 
-    QJobUVWidget* q = new QJobUVWidget(m_file, m_world, this);
+
+    QJobWidget* q=nullptr;
+    if ( t == kryomol::uv )
+    {
+        q= new QJobUVWidget(m_file, m_world, this);
+    }
+    else if ( t == kryomol::freq )
+    {
+        q= new QJobFreqWidget(m_file, m_world, this);
+    }
 
     m_measures = new QMeasureWidget(this);
     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
@@ -984,7 +1069,10 @@ void KryoMolMainWindow::InitWidgets(bool hasdensity,bool hasorbitals)
     connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
     connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
     connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
-
+    q->addWidget(m_measures);
+    m_measures->hide();
+    if ( dynamic_cast<QJobUVWidget*>(q) )
+    {
     QUVWidget* uvwidget = ( static_cast<QUVWidget*> (q->widget(1)));
     if ( hasdensity )
     {
@@ -1011,23 +1099,35 @@ void KryoMolMainWindow::InitWidgets(bool hasdensity,bool hasorbitals)
             connect(uvwidget,SIGNAL(showdensities(int)),m_orbitals,SLOT(OnShowDensityChange(int)));
             connect(uvwidget,SIGNAL(offshowtransitions(bool)),m_orbitals,SLOT(OffButtons(bool)));
         }
+
+        q->addWidget(m_orbitals);
+
+        m_measures->hide();
+        m_orbitals->hide();
     }
     else
     {
         if (!m_world->Molecules().back().Frames().back().TransitionChanges().empty())
             uvwidget->SetCheckableTransitionCoefficients();
     }
+    }
 
-    q->addWidget(m_measures);
-    q->addWidget(m_orbitals);
-    QList<int> list = q->sizes();
-    list[0]=m_size.width()-m_size.width()/4;
-    list[1]=m_size.width()/4;
-    list[2]=0;
-    list[3]=0;
-    q->setSizes(list);
-    m_measures->hide();
-    m_orbitals->hide();
+    QList<int> sizelist = q->sizes();
+
+    for(int i=0;i<sizelist.size();++i)
+    {
+        if ( i == 0 )
+        {
+        sizelist[0]=m_size.width()-m_size.width()/4;
+        }
+        else if ( i == 1 )
+        {
+        sizelist[1]=m_size.width()/4;
+        }
+        else sizelist[i]=0;
+    }
+    q->setSizes(sizelist);
+
     m_stackedwidget->addWidget(q);
     OnLastFrame();
     //Show the first job and update m_world and m_measures

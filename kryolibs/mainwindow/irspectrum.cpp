@@ -53,9 +53,6 @@ void IRSpectrum::SetFrequencies(const std::vector< std::vector<Frequency> >& v,d
       }
   }
 
-  m_sinusoidsets.clear();
-  m_sinusoidsets.resize(v.size());
-
   for(size_t i=0;i<nsets;++i)
   {
       const auto& fset=m_frequencysets[i];
@@ -80,9 +77,12 @@ void IRSpectrum::SetFrequencies(const std::vector< std::vector<Frequency> >& v,d
           s.m_flphase=0;
           s.m_flt1=0;
           s.m_multiplicity=1;
+          s.m_flfrequency=fset[j].x;
           s.InitData(m_npoints);
       }
   }
+
+  m_weights=std::vector<float>(m_frequencysets.size(),1.0f/m_frequencysets.size());
 
 }
 
@@ -96,27 +96,29 @@ void IRSpectrum::SetType( QPlotSpectrum::SpectrumType type )
 
 void IRSpectrum::CalculateSpectrum()
 {
-    m_data.clear();
-    m_data.resize(m_frequencysets.size());
-
-    for(const auto& ss : m_sinusoidsets)
-    {
-        for(auto& d : m_data)
-        {
-            d.grow(m_npoints);
-            float max=m_max;
-            float min=m_min;
-            float width= (max -min);
-
-            float fdelta_v=width/(d.size()-1);
-            for(size_t k=0;k<m_data.size();++k)
-            {
-                float m=min+k*fdelta_v;
-                d[k]=GetIntensityAt(m,ss);
-
-            }
-        }
-    }
+  m_data.clear();
+  m_data.resize(m_frequencysets.size());
+  m_totaldata.clear();
+  m_totaldata.grow(m_npoints);
+  for(size_t i=0;i<m_npoints;++i)
+  {
+      m_totaldata[i]=std::complex<float>(0,0);
+  }
+  for(size_t idx=0;idx<m_sinusoidsets.size();++idx)
+  {
+      auto& d=m_data[idx];
+      d.grow(m_npoints);
+      float max=m_max;
+      float min=m_min;
+      float width=(max-min);
+      float fdelta_v=width/(d.size()-1);
+      for(size_t k=0;k<d.size();++k)
+      {
+          float m=min+k*fdelta_v;
+          d[k]=GetIntensityAt(m,m_sinusoidsets[idx]);
+          m_totaldata[k]+=(d[k]*m_weights[idx]);
+      }
+  }
 
 
 }
