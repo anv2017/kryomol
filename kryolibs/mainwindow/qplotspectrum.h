@@ -37,7 +37,7 @@ public:
     void SetType(SpectrumType type) {m_type = type;}
 
 public slots:
-  void SetData(const std::vector<fidarray>* data,const const fidarray* totaldata,float,float, float);
+  void SetData(const std::vector<fidarray>* data,const fidarray* totaldata,float,float, float);
   void OnIncrease();
   void OnDecrease();
   void OnZoom(bool);

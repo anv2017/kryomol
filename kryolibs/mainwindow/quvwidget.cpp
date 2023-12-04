@@ -92,7 +92,6 @@ QUVWidget::QUVWidget(const kryomol::World* world, const QString& file, QWidget* 
     connect(_ECDFormalismComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(OnFormalismChanged(int)));
     _ECDFormalismComboBox->hide();
     connect(_enantiomerButton,SIGNAL(toggled(bool)),this,SLOT(OnCalculateEnantiomer(bool )));
-
 }
 
 

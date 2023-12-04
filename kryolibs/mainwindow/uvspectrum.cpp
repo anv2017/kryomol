@@ -219,32 +219,48 @@ bool UVSpectrum::WriteJCampDX()
 void UVSpectrum::CopyData()
 {
     QClipboard* c=QApplication::clipboard();
-    if ( c == NULL )
+    if ( c == nullptr )
     {
         std::cerr << "Could not open clipboard";
+        return;
     }
 
     std::stringstream s;
 
     float width= (m_max - m_min);
 
-    //Get the curve data size
-    size_t n=m_expdata.size();
-    float fdelta_v=width/(n-1);
-    s << "Exp" << "\t" << "Total" << "\t";
-    for(size_t i=0;i<n;++i)
+    const std::vector<fidarray>* datasets=this->GetData();
+    const fidarray* tdata=this->GetTotalData();
+    std::string sep="\t";
+
+    s << "Lambda(nm)" << sep;
+    for(size_t i=0;i<datasets->size();++i)
     {
-        s << "Conf." << (i+1) << "\t";
+        s << "#" << (i+1) << sep;
+
     }
-    for(size_t k=0;k<n;++k)
+    if ( tdata != nullptr )
     {
-        float m=m_min+k*fdelta_v;
-        s << m << "\t";
-        for(const auto& d : m_data )
+        s << "Total" << std::endl;
+    }
+
+    size_t npoints=datasets->front().size();
+    double delta=width/(npoints-1);
+    for(size_t k=0;k<npoints;++k)
+    {
+        //write x coordinates
+        double x=m_min+k*delta;
+        s << x << sep;
+        for(const auto& d : *datasets)
         {
-            s << d[k].real() <<  "\t";
+            s << d[k].real() << sep;
         }
-        s << std::endl;;
+
+        if ( tdata != nullptr )
+        {
+            s << (*tdata)[k].real();
+        }
+        s << std::endl;
 
     }
 

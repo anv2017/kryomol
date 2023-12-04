@@ -174,8 +174,14 @@
         </item>
         <item>
          <widget class="QPushButton" name="_copyButton">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Copy data in a tab-separated format to the clipboard. Data can then be  pasted in a spreadsheet to produce custom charts.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
-           <string>Copy</string>
+           <string>Copy data to clipboard</string>
           </property>
          </widget>
         </item>
