@@ -65,37 +65,15 @@ using namespace kryomol;
 const int maxrecentfiles = 5;
 const int fifosize = 20;
 
-KryoMolMainWindow::KryoMolMainWindow(QWidget *parent) : QMainWindow()
+KryoMolMainWindow::KryoMolMainWindow(QWidget *parent) : QMainWindow(),
+    m_orcawidget(nullptr) , m_hasdensity(false), m_hasorbitals(false),
+    m_hasalphabeta(false)
 {
     Init();
 }
 
 KryoMolMainWindow::~KryoMolMainWindow()
 {
-}
-
-void KryoMolMainWindow::Init()
-{
-    m_orcawidget = nullptr;
-
-    m_app=dynamic_cast<kryomol::KryoMolApplication*>qApp;
-
-    m_hasdensity=m_hasorbitals=m_hasalphabeta=false;
-
-    kryomol::BuildPeriodicTable();
-
-    m_world = new kryomol::World(this);
-
-    m_stackedwidget = new QStackedWidget(this);
-
-    m_stackedwidget->addWidget(m_world->Visor());
-
-    setCentralWidget(m_stackedwidget);
-
-    InitToolBars();
-
-    statusBar()->showMessage("");
-
 }
 
 void KryoMolMainWindow::InitToolBars()
@@ -146,6 +124,15 @@ void KryoMolMainWindow::InitToolBars()
     }
     UpdateRecentFiles();
 
+    //Edit Menu
+    QMenu* editmenu = new QMenu ( tr ( "Edit" ),this );
+    QMenu* exportgraphicsmenu = new QMenu ( tr ( "Export Graphics" ),this );
+    editmenu->addMenu ( exportgraphicsmenu );
+    QMenu* exportgeommenu = new QMenu( tr("Export Geometry"),this);
+    editmenu->addMenu( exportgeommenu );
+    QMenu* exportXYZmenu = new QMenu( tr("Export XYZ Coordinates"),this);
+    exportgeommenu->addMenu( exportXYZmenu );
+
     //Help menu
     QMenu* helpmenu = new QMenu ( tr ( "Help" ),this );
     QAction* aboutAction = new QAction(tr("&About QryoMol"),this);
@@ -156,21 +143,11 @@ void KryoMolMainWindow::InitToolBars()
 }
 
 
-void KryoMolMainWindow::InitGeneric()
+void KryoMolMainWindow::Init()
 {
-    //elimate all widgets and tool bars defined before
-    menuBar()->clear();
-
-
-    for (int i=0;i<m_navigationtoolbar.size();++i)
-    {
-        removeToolBar(m_navigationtoolbar.at(i));
-    }
-    m_navigationtoolbar.clear();
-
-    delete m_orcawidget;
-    m_orcawidget=nullptr;
-    delete m_stackedwidget;
+    m_app=dynamic_cast<kryomol::KryoMolApplication*>qApp;;
+    kryomol::BuildPeriodicTable();
+    m_world = new kryomol::World(this);
     m_stackedwidget = new QStackedWidget (this);
 
     //Construct the visor and widgets
@@ -900,8 +877,6 @@ void KryoMolMainWindow::OpenFile()
     }
     else
     {
-        InitGeneric();
-
         OpenGenericFile();
     }
 
@@ -1173,7 +1148,6 @@ void KryoMolMainWindow::OnOpenRecentFile()
         }
         else
         {
-            InitGeneric();
 
             OpenGenericFile();
         }

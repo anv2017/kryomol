@@ -139,7 +139,6 @@ void OrcaParser::GetEnergyForFrame()
             StringTokenizer tok(line," \t:");
             if ( tok.size() < 3 ) throw kryomol::Exception("error parsing SCF energy");
             Molecules()->back().Frames().back().SetEnergy(std::atof(tok[2].c_str()),"SCF");
-            Molecules()->back().Frames().back().SetRMSForce(1.0);
             return;
         }
     }
@@ -147,6 +146,47 @@ void OrcaParser::GetEnergyForFrame()
 
 void OrcaParser::GetGradientForFrame()
 {
+    std::string line;
+    while(std::getline(*m_file,line) )
+    {
+        if ( line.find( "|Geometry convergence|") != std::string::npos )
+        {
+            while(std::getline(*m_file,line))
+            {
+                if ( line.find("RMS gradient") != std::string::npos )
+                {
+                    StringTokenizer tok(line," \t:");
+                    Molecules()->back().Frames().back().SetRMSForce(std::stod(tok.at(2)));
+
+                }
+
+                if ( line.find("MAX gradient") != std::string::npos )
+                {
+                    StringTokenizer tok(line," \t:");
+                    Molecules()->back().Frames().back().SetMaximumForce(std::stod(tok.at(2)));
+
+                }
+
+                if ( line.find("RMS step") != std::string::npos )
+                {
+                    StringTokenizer tok(line," \t:");
+                    Molecules()->back().Frames().back().SetRMSDisplacement(std::stod(tok.at(2)));
+
+                }
+
+                if ( line.find("MAX step") != std::string::npos )
+                {
+                    StringTokenizer tok(line," \t:");
+                    Molecules()->back().Frames().back().SetMaximumDisplacement(std::stod(tok.at(2)));
+                    return;
+
+                }
+
+            }
+
+
+        }
+    }
 }
 
 

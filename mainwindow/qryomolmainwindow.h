@@ -62,7 +62,6 @@ private:
     void OpenIRFolder(QString foldername);
     void Init();
     void InitToolBars();
-    void InitGeneric();
     void InitGaussian();
     void FinishGaussian();
     void OpenGenericFile();
