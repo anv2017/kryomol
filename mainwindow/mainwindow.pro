@@ -110,6 +110,10 @@ RESOURCES += resources/qryomol.qrc
 icons.files=resources/*.png
 icons.path=mobkryolibs/icons
 
+macx {
+ICON = resources/kryomol.icns
+}
+
 libbasepath=
 !equals($$IN_PWD,$$OUT_PWD) {
 libbasepath=$$OUT_PWD/../kryolibs
