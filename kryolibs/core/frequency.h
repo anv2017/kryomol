@@ -17,10 +17,9 @@ the Free Software Foundation version 2 of the License.
 
 struct Frequency
 {
-  Frequency() { x=y=z=0.0f; }
-  Frequency(float fx, float fy,float fz=0.) { x=fx; y=fy; z=fz; }
-
-  float x; float y; float z;
+    Frequency() : x{0},y{0},z{0},w{0} { }
+    Frequency(float fx, float fy,float fz=0.0,float fw=0.0) { x=fx; y=fy; z=fz; w=fw; }
+    float x,y,z,w;
 };
 
 class Spectralline

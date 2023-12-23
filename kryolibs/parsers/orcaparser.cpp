@@ -134,11 +134,11 @@ void OrcaParser::GetEnergyForFrame()
     std::string line;
     while(std::getline(*m_file,line) )
     {
-        if ( line.find( "Total Energy       :") != std::string::npos )
+        if ( line.find( "FINAL SINGLE POINT ENERGY") != std::string::npos )
         {
             StringTokenizer tok(line," \t:");
             if ( tok.size() < 3 ) throw kryomol::Exception("error parsing SCF energy");
-            Molecules()->back().Frames().back().SetEnergy(std::atof(tok[2].c_str()),"SCF");
+            Molecules()->back().Frames().back().SetEnergy(std::stod(tok.back()),"SCF");
             return;
         }
     }
@@ -402,7 +402,7 @@ bool OrcaParser::GetOrbitalData()
                 {
                     switch ((*ot).Type())
                     {
-                    qDebug() << "Type: " << (*ot).Type() << endl;
+                        qDebug() << "Type: " << (*ot).Type() << endl;
                     case Orbital::S:
                         orbital = orbital+1;
                         break;
@@ -485,7 +485,7 @@ std::vector<JobHeader>& OrcaParser::Jobs()
     while(std::getline(*m_file,line) )
     {
         if ( line.find("* Geometry Optimization Run *") != std::string::npos
-             || line.find("*    Relaxed Surface Scan    *") != std::string::npos )
+            || line.find("*    Relaxed Surface Scan    *") != std::string::npos )
         {
             pos=m_file->tellg();
             m_jobpos.push_back(JobHeader(opt,pos));
@@ -493,7 +493,8 @@ std::vector<JobHeader>& OrcaParser::Jobs()
 
         //if ( line.find("*     ORCA property calculations      *") != std::string::npos )
         if ( line.find("* Single Point Calculation *") != std::string::npos ||
-             line.find("*     ORCA property calculations      *") != std::string::npos )
+            line.find("*     ORCA property calculations      *") != std::string::npos ||
+            line.find("Energy+Gradient Calculation")!= std::string::npos )
         {
             pos=m_file->tellg();
             m_jobpos.push_back(JobHeader(singlepoint,pos));
@@ -519,7 +520,7 @@ std::vector<JobHeader>& OrcaParser::Jobs()
 
 
                 if ( line.find("TD-DFT/TDA EXCITED STATES") != std::string::npos
-                     || line.find("TD-DFT EXCITED STATES") != std::string::npos  )
+                    || line.find("TD-DFT EXCITED STATES") != std::string::npos  )
                 {
                     it->type=uv;
                     bfound=true;
@@ -589,32 +590,79 @@ bool OrcaParser::GetFrequencies()
         if ( line.find("Scaling factor for frequencies") != std::string::npos ) break;
     }
 
-   std::getline ( *m_file,line );
+    std::getline ( *m_file,line );
 
-   while( std::getline(*m_file,line) )
-   {
-       StringTokenizer tok(line," \t\r");
-       if ( tok.empty() ) break;
-       frequencies.push_back(Frequency(std::stof(tok.at(1)),0,0));
-   }
+    while( std::getline(*m_file,line) )
+    {
+        StringTokenizer tok(line," \t\r");
+        if ( tok.empty() ) break;
+        frequencies.push_back(Frequency(std::stof(tok.at(1)),0,0));
+    }
 
-   bool irfound=false;
-   while( std::getline(*m_file,line) )
-   {
-       if (line.find("IR SPECTRUM") != std::string::npos ) irfound=true;
-       if (irfound) break;
-   }
-   if ( irfound ==false ) return false;
-   for(int i=0;i<4;++i)
-   {
+    bool irfound=false;
+    while( std::getline(*m_file,line) )
+    {
+        if (line.find("IR SPECTRUM") != std::string::npos ) irfound=true;
+        if (irfound) break;
+    }
+    if ( irfound ==false ) return false;
+    //skip the "---" closign line
+    std::getline(*m_file,line);
+    size_t Intcolumn=0;
+    do
+    {
         std::getline(*m_file,line);
-   }
-   while( std::getline(*m_file,line) )
-   {
-       StringTokenizer tok(line," \t\r");
-       if ( tok.empty() ) break;
-       frequencies.at(std::stoi(tok.at(0))).y=std::stof(tok.at(2));
-   }
+        if ( line.find( "Mode") != std::string::npos )
+        {
+            StringTokenizer tok(line," \t\r");
+            for(;Intcolumn<tok.size();++Intcolumn)
+            {
+                if ( tok[Intcolumn] == "Int" ) break;
+            }
+        }
+    } while( line.find("---") == std::string::npos );
+
+    while( std::getline(*m_file,line) )
+    {
+        StringTokenizer tok(line," \t\r");
+        if ( tok.empty() ) break;
+        //Intensity in km/mol
+        frequencies.at(std::stoi(tok.at(0))).y=std::stof(tok.at(Intcolumn));
+        //std::cout << "frequencies.y" << frequencies.at(std::stoi(tok.at(0))).y << std::endl;
+    }
+
+    //########
+    bool ramanfound=false;
+    while( std::getline(*m_file,line) )
+    {
+        if (line.find("RAMAN SPECTRUM") != std::string::npos ) ramanfound=true;
+        if (ramanfound) break;
+    }
+    if ( ramanfound == false ) return false;
+    //skip the "---" closign line
+    std::getline(*m_file,line);
+    Intcolumn=0;
+    do
+    {
+        std::getline(*m_file,line);
+        if ( line.find( "Mode") != std::string::npos )
+        {
+            StringTokenizer tok(line," \t\r");
+            for(;Intcolumn<tok.size();++Intcolumn)
+            {
+                if ( tok[Intcolumn] == "Activity" ) break;
+            }
+        }
+    } while( line.find("---") == std::string::npos );
+
+    while( std::getline(*m_file,line) )
+    {
+        StringTokenizer tok(line," \t\r");
+        if ( tok.empty() ) break;
+        //Intensity in km/mol
+        frequencies.at(std::stoi(tok.at(0))).w=std::stof(tok.at(Intcolumn));
+        //std::cout << "frequencies.y" << frequencies.at(std::stoi(tok.at(0))).y << std::endl;
+    }
 
     return true;
 
@@ -638,7 +686,7 @@ bool OrcaParser::GetNormalModes()
         {
             if ( kryomol::isinteger(tok.front() )  )
             {
-              if ( GetNormalModeBlock(tok) ) break;
+                if ( GetNormalModeBlock(tok) ) break;
             }
         }
     }
@@ -660,9 +708,9 @@ bool OrcaParser::GetNormalModeBlock(StringTokenizer& headertok)
         StringTokenizer tok(line," \t\r");
         if ( tok.empty() )
         {
-          m_file->clear();
-          m_file->seekg(pos);
-          return true;
+            m_file->clear();
+            m_file->seekg(pos);
+            return true;
         }
         if ( kryomol::isinteger(tok.back()))
         {
@@ -679,8 +727,8 @@ bool OrcaParser::GetNormalModeBlock(StringTokenizer& headertok)
         for(size_t i=firstmode;i<=lastmode;++i)
         {
 
-           D1Array<float>& dc=modes.at(i).at(cidx);
-                   dc(cmod)=std::stof(tok.at(++tidx));
+            D1Array<float>& dc=modes.at(i).at(cidx);
+            dc(cmod)=std::stof(tok.at(++tidx));
         }
 
     }

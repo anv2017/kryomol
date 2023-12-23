@@ -69,6 +69,9 @@ void IRSpectrum::SetFrequencies(const std::vector< std::vector<Frequency> >& v,d
           case QPlotSpectrum::IR:
               amplitude=fset[j].y;
               break;
+          case QPlotSpectrum::RAMAN:
+              amplitude=fset[j].w;
+              break;
           default:
               throw QString("Not handled QPlotSpectrum type");
           }

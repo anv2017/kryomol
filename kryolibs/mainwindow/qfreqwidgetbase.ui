@@ -290,6 +290,11 @@ p, li { white-space: pre-wrap; }
           <string>VCD</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>Raman</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>

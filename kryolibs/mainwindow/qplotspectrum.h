@@ -31,7 +31,7 @@ public:
     ~QPlotSpectrum();
 
     enum BaseLinePosition { Top, Middle, Bottom };
-    enum SpectrumType {IR, VCD, UV, ECD};
+    enum SpectrumType {IR, VCD, RAMAN, UV, ECD};
     void PlotSpectrum();
     void InitialPlotSpectrum();
     void SetType(SpectrumType type) {m_type = type;}

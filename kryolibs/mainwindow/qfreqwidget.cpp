@@ -107,6 +107,8 @@ void QFreqWidget::InitTable(size_t fidx)
         sheader="IR Intensity (kM/mol)";
     if (GetType() == QPlotSpectrum::VCD)
         sheader="Rotatory Strength";
+    if (GetType() == QPlotSpectrum::RAMAN)
+        sheader="Activity";
 
     QStringList hheader;
     hheader << "Mode";
@@ -145,6 +147,10 @@ void QFreqWidget::InitTable(size_t fidx)
         case QPlotSpectrum::IR:
             //si.setNum(it->y,'f',1);
             yvalue=f.y;
+            precision=1;
+            break;
+        case QPlotSpectrum::RAMAN:
+            yvalue=f.w;
             precision=1;
             break;
         default:
@@ -406,11 +412,22 @@ void QFreqWidget::OnResetDistortions()
 
 void QFreqWidget::OnSpectrumTypeChanged(int t)
 {
-    if (t==0)
-        SetType(QPlotSpectrum::IR);
-    else
-        SetType(QPlotSpectrum::VCD);
-    InitTable(t);
+    switch(t)
+    {
+    case 0:
+       SetType(QPlotSpectrum::IR);
+        break;
+    case 1:
+       SetType(QPlotSpectrum::VCD);
+        break;
+    case 2:
+        SetType(QPlotSpectrum::RAMAN);
+        break;
+    default:
+        throw QString("Invalid type");
+    }
+
+    InitTable(m_world->CurrentMolecule()->CurrentFrameIndex());
     emit data(GetData(),Max(),Min(),Shift());
     emit Type(GetType()); //to stablish the baseline
 }
