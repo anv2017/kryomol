@@ -10,7 +10,7 @@ the Free Software Foundation version 2 of the License.
 ******************************************************************************************/
 
 
-#include "qryomolmainwindow.h"
+#include "kryomolmainwindow.h"
 #include "qryomolapp.h"
 #include "iostream"
 

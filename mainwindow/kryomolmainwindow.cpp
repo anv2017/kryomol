@@ -135,7 +135,7 @@ void KryoMolMainWindow::InitToolBars()
 
     //Help menu
     QMenu* helpmenu = new QMenu ( tr ( "Help" ),this );
-    QAction* aboutAction = new QAction(tr("&About QryoMol"),this);
+    QAction* aboutAction = new QAction(tr("&About KryoMol"),this);
     connect ( aboutAction,SIGNAL ( triggered() ),this,SLOT ( OnAbout() ) );
     helpmenu->addAction ( aboutAction );
     mainmenu->addMenu(helpmenu);
@@ -410,6 +410,12 @@ void KryoMolMainWindow::Init()
     windowmenu->addAction(openPluginActionMenu);
     windowmenu->addAction(showMeasuresAction);
 
+    //Help menu
+    QMenu* helpmenu = new QMenu ( tr ( "Help" ),this );
+    QAction* aboutAction = new QAction(tr("&About KryoMol"),this);
+    connect ( aboutAction,SIGNAL ( triggered() ),this,SLOT ( OnAbout() ) );
+    helpmenu->addAction ( aboutAction );
+
 
     QMenuBar* mainmenu = menuBar();
     //Menus
@@ -417,6 +423,7 @@ void KryoMolMainWindow::Init()
     mainmenu->addMenu (editmenu);
     mainmenu->addMenu(viewmenu);
     mainmenu->addMenu(windowmenu);
+    mainmenu->addMenu(helpmenu);
 
 
     //---------------- Navigation Tool Bar ---------------
