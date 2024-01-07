@@ -1412,7 +1412,7 @@ QStringList GLVisor::GetDihedrals (size_t frame)
                 it->k+1,
                 m_world->CurrentMolecule()->Atoms() [it->l].Symbol().c_str(),
                 it->l+1,
-                fr.Dihedral ( it->i,it->j,it->k,it->l ) );
+                fr.Dihedral ( it->i,it->j,it->k,it->l )*180/M_PI );
         it->value = str.toStdString();
         list << str;
     }
