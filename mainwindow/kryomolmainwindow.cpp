@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <iostream>
 
-#include "qryomolmainwindow.h"
+#include "kryomolmainwindow.h"
 #include "qryomolapp.h"
 #include "world.h"
 #include "atom.h"
@@ -1237,13 +1237,17 @@ void KryoMolMainWindow::OpenGaussianFile()
 
     m_qparser=factory.BuildParser();
 
-    if ( m_qparser == NULL )
+    if ( m_qparser == nullptr )
     {
         QMessageBox k;
         k.setText ( "Could not determine file type" );
         k.exec();
         return;
     }
+
+    m_hasdensity=factory.existDensity();
+    m_hasorbitals=factory.existOrbitals();
+    m_hasalphabeta=factory.existAlphaBeta();
 
     //Looking for an Optimization Job:
 
@@ -1288,7 +1292,7 @@ void KryoMolMainWindow::OpenGaussianFile()
 
             if ( m_world->Molecules().back().Frames().size() == 1)
             {
-                if (m_hasdensity)
+                if ( m_hasdensity )
                 {
                     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
 
@@ -1296,7 +1300,7 @@ void KryoMolMainWindow::OpenGaussianFile()
                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
                     connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
 
-                    if (m_hasorbitals)
+                    if ( m_hasorbitals )
                     {
                         m_orbitals->SetBeta(m_hasalphabeta);
                         m_orbitals->ListOrbitals();
@@ -1306,7 +1310,7 @@ void KryoMolMainWindow::OpenGaussianFile()
             }
             else
             {
-                if ( (m_hasdensity) && (!m_hasorbitals))
+                if ( m_hasdensity && !m_hasorbitals )
                 {
                     if (!m_world->Molecules().back().CurrentFrame().ElectronicDensityData().Density().Empty())
                     {
@@ -1325,7 +1329,7 @@ void KryoMolMainWindow::OpenGaussianFile()
 
                 }
 
-                if (m_hasorbitals)
+                if ( m_hasorbitals )
                 {
                     if (!m_world->Molecules().back().CurrentFrame().OrbitalsData().BasisCenters().empty())
                     {
@@ -1396,7 +1400,7 @@ void KryoMolMainWindow::OpenGaussianFile()
 
             if ( m_world->Molecules().back().Frames().size() == 1)
             {
-                if (m_hasdensity)
+                if ( m_hasdensity )
                 {
                     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
 
@@ -1404,7 +1408,7 @@ void KryoMolMainWindow::OpenGaussianFile()
                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
                     connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
 
-                    if (m_hasorbitals)
+                    if ( m_hasorbitals )
                     {
                         m_orbitals->SetBeta(m_hasalphabeta);
                         m_orbitals->ListOrbitals();
@@ -1414,7 +1418,7 @@ void KryoMolMainWindow::OpenGaussianFile()
             }
             else
             {
-                if ( (m_hasdensity) && (!m_hasorbitals))
+                if ( m_hasdensity && !m_hasorbitals )
                 {
                     if (!m_world->Molecules().back().CurrentFrame().ElectronicDensityData().Density().Empty())
                     {
@@ -1538,7 +1542,7 @@ void KryoMolMainWindow::OpenGaussianFile()
 
             if ( m_world->Molecules().back().Frames().size() == 1)
             {
-                if (m_hasdensity)
+                if ( m_hasdensity )
                 {
                     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
 
@@ -1546,7 +1550,7 @@ void KryoMolMainWindow::OpenGaussianFile()
                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
                     connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
 
-                    if (m_hasorbitals)
+                    if ( m_hasorbitals )
                     {
                         m_orbitals->SetBeta(m_hasalphabeta);
                         m_orbitals->ListOrbitals();
@@ -1556,7 +1560,7 @@ void KryoMolMainWindow::OpenGaussianFile()
             }
             else
             {
-                if ( (m_hasdensity) && (!m_hasorbitals))
+                if ( m_hasdensity && !m_hasorbitals )
                 {
                     if (!m_world->Molecules().back().Frames().back().ElectronicDensityData().Density().Empty())
                     {
@@ -1575,7 +1579,7 @@ void KryoMolMainWindow::OpenGaussianFile()
 
                 }
 
-                if (m_hasorbitals)
+                if ( m_hasorbitals)
                 {
                     if (!m_world->Molecules().back().Frames().back().OrbitalsData().BasisCenters().empty())
                     {
@@ -1597,7 +1601,7 @@ void KryoMolMainWindow::OpenGaussianFile()
 
             }
 
-            if (m_hasdensity)
+            if ( m_hasdensity )
             {
                 m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
 
@@ -1663,14 +1667,14 @@ void KryoMolMainWindow::OpenGaussianFile()
             connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
 
             QUVWidget* uvwidget = ( static_cast<QUVWidget*> (q->widget(1)));
-            if (m_hasdensity)
+            if ( m_hasdensity )
             {
                 m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
 
                 connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
                 connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
 
-                if (m_hasorbitals)
+                if ( m_hasorbitals )
                 {
                     m_orbitals->SetBeta(m_hasalphabeta);
                     uvwidget->SetBeta(m_hasalphabeta);

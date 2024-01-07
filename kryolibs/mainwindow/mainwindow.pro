@@ -20,7 +20,7 @@ HEADERS += qmoleculartreewidget.h \
            qirwidget.h \
            qjcdrawing.h \
            irspectrum.h \
-           basemainwindow.h \
+           #basemainwindow.h \
            qmeasurewidget.h \
            quvwidget.h \
            uvspectrum.h \
@@ -37,7 +37,7 @@ SOURCES += qmoleculartreewidget.cpp \
            qirwidget.cpp \
            qjcdrawing.cpp \
            irspectrum.cpp \
-           basemainwindow.cpp \
+           #basemainwindow.cpp \
            qmeasurewidget.cpp \
            quvwidget.cpp \
            uvspectrum.cpp \

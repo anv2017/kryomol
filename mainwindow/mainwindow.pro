@@ -85,7 +85,7 @@ LIBS += -lcudatools -lcudart
 SOURCES += main.cpp \
     orcadialog.cpp \
     orcaengine.cpp \
-    qryomolmainwindow.cpp \
+    kryomolmainwindow.cpp \
     qjoboptwidget.cpp \
     qjobfreqwidget.cpp \
     qjobwidget.cpp \
@@ -94,7 +94,7 @@ SOURCES += main.cpp \
     qnicsgriddialog.cpp \
     qjobdynwidget.cpp
 
-HEADERS  += qryomolmainwindow.h \
+HEADERS  += kryomolmainwindow.h \
     orcadialog.h \
     orcaengine.h \
     qjoboptwidget.h \
