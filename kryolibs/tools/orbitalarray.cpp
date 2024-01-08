@@ -15,6 +15,8 @@ using namespace kryomol;
 
 void OrbitalArray::CalculateExponential(const float Nx, const float Ny, const float Nz, const float step, const float cx, const float cy, const float cz, const float alpha, const float xs) //const float &cx, const float &cy, const float &cz)
 {
+    std::cout << "r,c,f" << m_rows << "," << m_columns << "," << m_files << std::endl;
+
     assert ( this->m_rows>0 && this->m_columns>0 && this->m_files>0);
     #ifdef WITH_SIMD
 
@@ -53,13 +55,16 @@ void OrbitalArray::CalculateExponential(const float Nx, const float Ny, const fl
     float z = -Nz/2-cz;
     for(size_t k=0;k<m_files;++k)
     {
+        float z2=z*z;
         float y = -Ny/2-cy;
         for(size_t j=0;j<m_columns;++j)
         {
+            float y2=y*y;
             float x = -Nx/2-cx;
             for(size_t i=0;i<m_rows/4;++i)
             {
-                *v4 = _mm_set_ps(a*((x+3*step)*(x+3*step) + (y)*(y) + (z)*(z)),a*((x+2*step)*(x+2*step) + (y)*(y) + (z)*(z)),a*((x+step)*(x+step) + (y)*(y) + (z)*(z)),a*((x)*(x) + (y)*(y) + (z)*(z)));
+                float x2=x*x;
+                *v4 = _mm_set_ps(a*((x+3*step)*(x+3*step) + y2 + z2),a*((x+2*step)*(x+2*step) + y2 + z2),a*((x+step)*(x+step) + y2 + z2),a*(x2 + y2 + z2));
                 *v4 = exp_ps(*v4);
                 ptr[p] = _mm_mul_ps(*xs4,*v4); //k*m_rows*m_columns+j*m_rows+i
                 ++p;

@@ -36,7 +36,10 @@ DEFINES += QT_NO_DEBUG_OUTPUT
 
 sse {
  unix {
- QMAKE_CXXFLAGS += -mmmx -mfpmath=sse -msse -msse2 -msse3  -Wno-narrowing
+ #QMAKE_CXXFLAGS += -mmmx -mfpmath=sse -msse -msse2 -msse3  -Wno-narrowing
+ #This should be enough and safe
+ QMAKE_CXXFLAGS += -O2 -Wno-narrowing
+ DEFINES += USE_SSE2
  }
  win32 {
  QMAKE_CXXFLAGS += -mmmx -mfpmath=sse -msse -msse2 -msse3  -Wno-narrowing
