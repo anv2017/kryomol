@@ -1239,7 +1239,9 @@ bool GaussianFileParser::ParseUV ( std::streampos pos )
             std::streampos oldpos=m_file->tellg();
             m_file->clear();
             m_file->seekg(positions.at(positions.size()-3),std::ios::beg);
-            std::getline(*m_file,line);
+            //I do not know why this std::ws is necessary in order to run the pyridine td examople with MINGW64 in Windows
+            //seems like a newline character is present in a certian line but not the others!
+            std::getline(*m_file >> std::ws,line);
             StringTokenizer tok(line," t\r");
             spt->SetRotatoryStrengthVelocity(std::atof(tok.back().c_str()));
             ++spt;
