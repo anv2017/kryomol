@@ -22,17 +22,17 @@ desktop{
     }
 }
 
-unix {
-  !macx {
-  installdirfile=../installdir_unix.pri
-  include ($${installdirfile})
-  isEmpty(installdir) {
-  installdir=/usr/local/bin
-  }    
-  target.path=$$installdir
-  INSTALLS+=target
-  }
-}
+#unix {
+#  !macx {
+#  installdirfile=../installdir_unix.pri
+#  include ($${installdirfile})
+#  isEmpty(installdir) {
+#  installdir=/usr/local/bin
+#  }
+#  target.path=$$installdir
+#  INSTALLS+=target
+#  }
+#}
 
 
 INCLUDEPATH += ../kryolibs/info ../kryolibs/core ../kryolibs/render ../kryolibs/plugin ../kryolibs/plugin/world ../kryolibs/plugin/tools ../kryolibs/cudatools ../kryolibs/tools ../kryolibs/parsers ../kryolibs/mainwindow ../kryolibs/script ../kryolibs/3dparty/qwt6/src ../kryolibs/3dparty/qwt6/designer ../kryolibs/3dparty/qwt6/lib ../kryolibs/wavelets
