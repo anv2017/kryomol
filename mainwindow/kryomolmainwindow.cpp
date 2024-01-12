@@ -246,6 +246,20 @@ void KryoMolMainWindow::Init()
     connect ( loadAction,SIGNAL ( triggered() ),this,SLOT ( OnLoadButton() ) );
     filemenu->addAction ( loadAction );
 
+    //Add openfolder action. This is by now intended to load a folder with several ECD computations
+    QMenu* openfoldermenu = new QMenu("Open Folder");
+    filemenu->addMenu(openfoldermenu);
+    QAction*   loadUVFolderAction = new QAction ( QIcon ( QString::fromUtf8(":/icons/fileopen.png") ),tr ( "&Open UV/ECD Folder " ),this );
+    //loadFolderAction->setShortcut(tr("Ctrl+F"));
+    loadUVFolderAction->setStatusTip(tr("Open many UV/ECD files from a folder"));
+    connect ( loadUVFolderAction,SIGNAL ( triggered() ),this,SLOT ( OnLoadUVFolderAction() ) );
+    openfoldermenu->addAction ( loadUVFolderAction );
+    QAction*   loadIRFolderAction = new QAction ( QIcon ( QString::fromUtf8(":/icons/fileopen.png") ),tr ( "&Open IR/VCD Folder " ),this );
+    //loadFolderAction->setShortcut(tr("Ctrl+F"));
+    loadIRFolderAction->setStatusTip(tr("Open many IR/VCD files from a folder"));
+    connect ( loadIRFolderAction,SIGNAL ( triggered() ),this,SLOT ( OnLoadIRFolderAction() ) );
+    openfoldermenu->addAction ( loadIRFolderAction );
+
     QAction* quitAction = new QAction ( QIcon ( QString::fromUtf8(":/icons/exit.png") ),tr ( "&Quit" ),this );
     quitAction->setShortcut(tr("Ctrl+Q"));
     quitAction->setStatusTip(tr("Quit KryoMol"));
