@@ -5,7 +5,6 @@
 #include <QStringList>
 #include <QTextStream>
 
-#include "svnversion.h"
 #ifndef KRYOMOLSVNVERSION
 #define KRYOMOLSVNVERSION ""
 #endif
