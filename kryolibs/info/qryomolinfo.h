@@ -11,7 +11,7 @@
 
 #define KRYOMOLMAJORVERSION 2
 #define KRYOMOLMINORVERSION 0
-#define KRYOMOLSUBMINORVERSION "alpha-3"
+#define KRYOMOLSUBMINORVERSION "2024.1"
 
 namespace kryomol
 {
@@ -22,7 +22,7 @@ public:
     {
         QString str;
         QTextStream stream(&str);
-        stream << KRYOMOLMAJORVERSION << "." << KRYOMOLMINORVERSION << "." << KRYOMOLSUBMINORVERSION;
+        stream << KRYOMOLMAJORVERSION << "." << KRYOMOLMINORVERSION << "-" << KRYOMOLSUBMINORVERSION;
         return str;
     }
 
@@ -34,7 +34,7 @@ public:
     static QStringList Authors()
     {
         QStringList authorlist;
-        authorlist << QString::fromLocal8Bit("Armando Navarro-Vázquez") ;
+        authorlist << "Armando Navarro-Vázquez";
         return authorlist;
 
     }
@@ -42,7 +42,7 @@ public:
     static QStringList Collaborators()
     {
         QStringList authorlist;
-        authorlist <<  QString::fromLocal8Bit("Noa Campos López");
+        authorlist << "Noa Campos López";
         return authorlist;
     }
 

@@ -107,6 +107,10 @@ HEADERS  += kryomolmainwindow.h \
 
 RESOURCES += resources/qryomol.qrc
 
+win32 {
+RC_ICONS = resources/kryomol.ico
+}
+
 icons.files=resources/*.png
 icons.path=mobkryolibs/icons
 

@@ -2319,7 +2319,6 @@ void KryoMolMainWindow::OnAbout()
     QTextStream stream(&str);
     stream << m_app->applicationName() << endl;
     stream << "Revision:" << kryomol::KryoMolInfo::Version() << endl;
-    stream << "svn:" << kryomol::KryoMolInfo::SvnVersion() << endl;
     stream << endl;
     stream << "Main Author:" << endl;
 
