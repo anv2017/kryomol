@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=2.0-2024.1
+Name=KryoMol
+GenericName=Quantum chemistry visualizer
+Comment=KryoMol analyzes and build spectra from quantum chemistry computations
+Exec=/usr/bin/KryoMol
+Icon=/usr/share/icons/hicolor/scalable/apps/KryoMol.svg
+Type=Application
+Terminal=false
+Categories=Science
+
+
+

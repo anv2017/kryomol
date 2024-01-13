@@ -7,4 +7,4 @@ cuda{
     SUBDIRS += cudatools
 }
 
-SUBDIRS += core render parsers plugin mainwindow script wavelets
+SUBDIRS += core render parsers plugin mainwindow wavelets

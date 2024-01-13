@@ -1,0 +1,7 @@
+Package: KryoMol
+Architecture: amd64
+Essential: No
+Section: Science
+Version: 2.0-2024.1
+Maintainer: Armando Navarro-Vazquez <armando.deus@gmail.com>
+Description: Molecular Visor for Computational Chemistry

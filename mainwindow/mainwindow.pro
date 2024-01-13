@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT += core gui opengl script svg
+QT += core gui opengl svg
 
 TARGET = KryoMol
 TEMPLATE = app
@@ -35,7 +35,7 @@ desktop{
 #}
 
 
-INCLUDEPATH += ../kryolibs/info ../kryolibs/core ../kryolibs/render ../kryolibs/plugin ../kryolibs/plugin/world ../kryolibs/plugin/tools ../kryolibs/cudatools ../kryolibs/tools ../kryolibs/parsers ../kryolibs/mainwindow ../kryolibs/script ../kryolibs/3dparty/qwt6/src ../kryolibs/3dparty/qwt6/designer ../kryolibs/3dparty/qwt6/lib ../kryolibs/wavelets
+INCLUDEPATH += ../kryolibs/info ../kryolibs/core ../kryolibs/render ../kryolibs/plugin ../kryolibs/plugin/world ../kryolibs/plugin/tools ../kryolibs/cudatools ../kryolibs/tools ../kryolibs/parsers ../kryolibs/mainwindow  ../kryolibs/3dparty/qwt6/src ../kryolibs/3dparty/qwt6/designer ../kryolibs/3dparty/qwt6/lib ../kryolibs/wavelets
 
 #detect shadow building and include folder with ui_*.h files and svninfo.h
 !equals($$IN_PWD,$$OUT_PWD) {
@@ -46,17 +46,17 @@ INCLUDEPATH += $$OUT_PWD/../kryolibs/mainwindow  $$OUT_PWD/../kryolibs/info
 win32{
 
   CONFIG(debug, debug|release){
-    LIBS += -L../kryolibs/mainwindow/debug  -L../kryolibs/script/debug -L../kryolibs/render/debug -L../kryolibs/plugin/debug \
+    LIBS += -L../kryolibs/mainwindow/debug  -L../kryolibs/render/debug -L../kryolibs/plugin/debug \
             -L../kryolibs/parsers/debug -L../kryolibs/core/debug -L../kryolibs/cudatools/debug/ -L../kryolibs/tools/debug/ -L../kryolibs/wavelets/debug -L../kryolibs/3dparty/gl2ps/debug
   }
   CONFIG(release, debug|release){
-    LIBS += -L../kryolibs/mainwindow/release  -L../kryolibs/script/release -L../kryolibs/render/release -L../kryolibs/plugin/release \
+    LIBS += -L../kryolibs/mainwindow/release  -L../kryolibs/render/release -L../kryolibs/plugin/release \
             -L../kryolibs/parsers/release -L../kryolibs/core/release -L../kryolibs/cudatools/release -L../kryolibs/tools/release -L../kryolibs/wavelets/release -L../kryolibs/3dparty/gl2ps/release
   }
 }
 
 LIBS += -L../kryolibs/mainwindow -L../kryolibs/script -L../kryolibs/render -L../kryolibs/plugin -L../kryolibs/parsers -L../kryolibs/core -L../kryolibs/cudatools -L../kryolibs/tools -L../kryolibs/wavelets -L../kryolibs/3dparty/gl2ps -L../kryolibs/3dparty/qwt/lib
-LIBS += -lqryomolmainwindow -lqryomolscript -lqryomolrender -lqryomolplugin -lqryomolparsers -lqryomolcore  -lqryomoltools -lqryomolwavelets  -lqryomolgl2ps  #-llapack -lblas
+LIBS += -lqryomolmainwindow -lqryomolrender -lqryomolplugin -lqryomolparsers -lqryomolcore  -lqryomoltools -lqryomolwavelets  -lqryomolgl2ps  #-llapack -lblas
 
 
 #detect shadow building and include qwt6 folder
@@ -132,7 +132,6 @@ POST_TARGETDEPS += $$libbasepath/tools/libqryomoltools.a \
                    $$libbasepath/plugin/libqryomolplugin.a \
                    $$libbasepath/render/libqryomolrender.a \
                    $$libbasepath/mainwindow/libqryomolmainwindow.a \
-                   $$libbasepath/script/libqryomolscript.a
 }
 
 win32 {
@@ -150,7 +149,6 @@ POST_TARGETDEPS += $$libbasepath/tools/$$middlepath/libqryomoltools.a \
                    $$libbasepath/plugin/$$middlepath/libqryomolplugin.a \
                    $$libbasepath/render/$$middlepath/libqryomolrender.a \
                    $$libbasepath/mainwindow/$$middlepath/libqryomolmainwindow.a \
-                   $$libbasepath/script/$$middlepath/libqryomolscript.a
 }
 
 FORMS += \
