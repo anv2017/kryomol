@@ -7,15 +7,15 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{BB286076-13E5-40C8-9BFC-5DBFE74B97DF}
 AppName=KryoMol
-AppVersion=2.0-alpha
-AppVerName=KryoMol 2.0-alpha
+AppVersion=2.0-2024.1
+AppVerName=KryoMol 2.0-2024.1
 AppPublisher=
-AppPublisherURL=https://sourceforge.net/projects/kryomol/
-AppSupportURL=https://sourceforge.net/projects/kryomol/
-AppUpdatesURL=https://sourceforge.net/projects/kryomol/
+AppPublisherURL=https://github.com/anv2017/kryomol
+AppSupportURL=https://github.com/anv2017/kryomol
+AppUpdatesURL=https://github.com/anv2017/kryomol
 DefaultDirName={pf}\KryoMol
 DefaultGroupName=KryoMol
-OutputBaseFilename=kryomol_mingw64_setup
+OutputBaseFilename=kryomol_2.0_2024.1_mingw64
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
@@ -67,7 +67,7 @@ Source: "translations\*"; DestDir: "{app}\translations"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\"; Filename: "{app}\KryoMol.exe"
+Name: "{group}\KryoMol"; Filename: "{app}\KryoMol.exe"
 Name: "{group}\{cm:UninstallProgram,KryoMol}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\KryoMol"; Filename: "{app}\KryoMol.exe"; Tasks: desktopicon
 
