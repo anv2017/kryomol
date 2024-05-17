@@ -83,6 +83,7 @@ private slots:
   void OnCalculateEnantiomer(bool );
   void OnFormalismChanged(int );
   void OnSolventShift(bool b);
+  void OnBoltzmannCheckBox(bool b);
 private:
   void InitTransitionTable(int );
 

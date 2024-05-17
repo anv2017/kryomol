@@ -106,7 +106,18 @@ void QJobUVWidget::OnShowUVSpectrum ( bool bshow )
     QPlotSpectrum* jc= ir->GetSpectrum();
     jc->SetType(QPlotSpectrum::UV);
     connect ( fw,SIGNAL ( data ( const std::vector<fidarray>*,const fidarray*,float,float,float) ),jc,SLOT ( SetData ( const std::vector<fidarray>*,const fidarray*,float,float,float) ) );
+    std::vector<QColor> colors;
+    for( const auto& f : this->GetWorld()->CurrentMolecule()->Frames() )
+    {
+        float h,s,l;
+        f.GetColor(h,s,l);
+        colors.push_back(QColor::fromHslF(h,s,l));
+    }
+    jc->SetColors(colors);
     jc->SetData ( fw->GetData(),fw->GetTotalData(),fw->Max(),fw->Min(), fw->Shift());
+    //set the colors
+
+
 
     //Change the size of the widgets in the splitter
     QList<int> list = vsplit->sizes();

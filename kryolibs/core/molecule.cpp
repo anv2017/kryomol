@@ -857,4 +857,17 @@ void Molecule::SetEnergyLevel(std::string level) const
     m_private->m_energylevel=level;
 }
 
+void Molecule::SetColors()
+{
+    if ( Frames().empty() ) return;
+
+    float huestep=0.8/this->Frames().size();
+    float lowhue=0.1;
+    for(auto& f : Frames() )
+    {
+        f.SetColor(lowhue,0.4,0.4);
+        lowhue+=huestep;
+    }
+}
+
 

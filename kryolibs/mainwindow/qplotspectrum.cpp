@@ -96,15 +96,14 @@ void QPlotSpectrum::PlotSpectrum()
 
     float huestep=0.8/m_curves.size();
     float lowhue=0.1;
-    for(auto& c : m_curves)
+    //for(auto& c : m_curves)
+
+    for(size_t i=0;i<m_curves.size();++i)
     {
-        c= new QwtPlotCurve();
-        c->setStyle(QwtPlotCurve::Lines);
-        //Rotate the hue value
-        QColor cl;
-        cl.setHslF(lowhue,0.4,0.4);
-        lowhue+=huestep;
-        c->setPen(QPen(cl));
+        m_curves[i]=new QwtPlotCurve;
+        m_curves[i]= new QwtPlotCurve();
+        m_curves[i]->setStyle(QwtPlotCurve::Lines);
+        m_curves[i]->setPen(QPen(m_colors[i]));
     }
 
 

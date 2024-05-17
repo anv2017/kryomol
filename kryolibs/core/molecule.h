@@ -161,6 +161,8 @@ namespace kryomol
 
       std::string GetEnergyLevel() const;
       void SetEnergyLevel(std::string level) const;
+      /** set a particular color for each conformation*/
+      void SetColors();
 
   protected:
       void RotateNeighbours(size_t i, size_t j, int sense,double pass);

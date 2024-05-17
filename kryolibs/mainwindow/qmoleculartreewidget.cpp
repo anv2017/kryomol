@@ -9,6 +9,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation version 2 of the License.
 ******************************************************************************************/
 
+#include <QLabel>
 
 #include "qmoleculartreewidget.h"
 
@@ -35,8 +36,9 @@ void QMolecularTreeWidget::Init()
 {
     clear();
     QStringList labels;
-    int ncolumns=1;
-    labels << "Conformers";
+    int ncolumns=2;
+    labels << "#";
+    labels << "color";
     const std::vector<double>& populations=m_world->CurrentMolecule()->Populations();
     if ( m_world->CurrentMolecule()->Populations().size() > 1 )
     {
@@ -72,6 +74,14 @@ void QMolecularTreeWidget::Init()
         }
 
         QNumTreeWidgetItem* mitem= new QNumTreeWidgetItem ( this, sl );
+        float h,s,l;
+        mf.GetColor(h,s,l);
+        QFrame *f = new QFrame(this);
+        QColor c=QColor::fromHslF(h,s,l);
+
+        f->setStyleSheet(QString("QFrame { background-color: %1; border: none }").arg(c.name()));
+
+        this->setItemWidget(mitem,1,f);
         addTopLevelItem(mitem);
 
 

@@ -25,8 +25,9 @@ the Free Software Foundation version 2 of the License.
 #endif
 
 const std::string jcampversion="4.24";
+const bool useboltzmannweighting=false;
 
-UVSpectrum::UVSpectrum() : m_spectrumtype(QPlotSpectrum::UV) //, m_linewidth(20.0), m_npoints(512), m_shift(30.0)
+UVSpectrum::UVSpectrum() : m_spectrumtype(QPlotSpectrum::UV)
 {
     m_title= "gaussian spectrum";
     m_linewidth = 0.3;
@@ -34,6 +35,8 @@ UVSpectrum::UVSpectrum() : m_spectrumtype(QPlotSpectrum::UV) //, m_linewidth(20.
     m_shift = 0.0;
     m_formalism=length;
     m_benantiomer=false;
+    m_boltzw=useboltzmannweighting;
+    m_populations=nullptr;
 }
 
 UVSpectrum::~UVSpectrum()
@@ -128,7 +131,16 @@ void UVSpectrum::CalculateSpectrum()
         {
             float m=min+k*fdelta_v;
             d[k]=GetIntensityAt(m,m_sinusoidsets[idx]);
-            m_totaldata[k]+=(d[k]*m_weights[idx]);
+
+            if ( this->BoltzmannWeighting() )
+            {
+                double p=(*m_populations)[idx];
+                d[k]*=p;
+            } else
+            {
+                d[k]*=m_weights[idx];
+            }
+            m_totaldata[k]+=(d[k]);
         }    
     }
 }

@@ -100,7 +100,9 @@ void World::Initialize()
   for(std::vector<Molecule>::iterator mt=m_molecules.begin();mt!=m_molecules.end();++mt)
   {
       SetPopulations(*mt);
+      mt->SetColors();
   }
+
   if ( m_visor ) m_visor->Initialize();
 }
 

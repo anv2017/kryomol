@@ -126,7 +126,10 @@ namespace kryomol
       Coordinate Dipole();
       D1Array<double>& GetForces() ;
       D2Array<double>& GetHessian()  ;
-
+      /** get the HSL representative color for the conformer*/
+      void GetColor(float& h,float& s,float& l) const;
+      /** set the HSL representative color for the conformer*/
+      void SetColor(float h,float s,float l);
       void SetEnergy(double e, const std::string& level="");
       void SetS2(double e) ;
       void SetRMSForce(double f) ;

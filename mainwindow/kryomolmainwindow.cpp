@@ -756,6 +756,14 @@ void KryoMolMainWindow::FinishGaussian()
     //Window menu
     QMenu* windowmenu = new QMenu  (tr("Window"),this);
     windowmenu->addAction(showMeasuresAction);
+    //Actions
+    QAction* openConfActionMenu = new QAction("Show Conformers",this);
+    openConfActionMenu->setCheckable ( true );
+    openConfActionMenu->setChecked ( false );
+    connect(openConfActionMenu,SIGNAL(triggered()),this,SLOT(OnOpenConfButton()));
+    windowmenu->addAction(openConfActionMenu);
+
+
 
     //Menu Bar, mainmenu, if we use Mac or Windows <-> Vertical Tool Bar, m_maintoolbar, on the left if we use a mobile device
 
@@ -821,7 +829,7 @@ void KryoMolMainWindow::FinishGaussian()
     angleAction->setCheckable ( true );
     dihedralAction->setCheckable ( true );
     rotateBondAction->setCheckable(true);
-    m_measureActions->setExclusive ( true );
+    //m_measureActions->setExclusive ( true );
 
 
     navigationtoolbar->addAction ( noneAction );
@@ -1054,6 +1062,10 @@ void KryoMolMainWindow::InitWidgets(kryomol::JobType t,bool hasdensity,bool haso
     }
 
     m_measures = new QMeasureWidget(this);
+    m_mdcontrol = new QMolecularListControl(this);
+    m_mdcontrol->SetWorld(m_world);
+    m_mdcontrol->Init();
+
     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
     connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
     connect(m_world->Visor(),SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
@@ -1065,8 +1077,12 @@ void KryoMolMainWindow::InitWidgets(kryomol::JobType t,bool hasdensity,bool haso
     connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
     connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
     connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
+
     q->addWidget(m_measures);
+    q->addWidget(m_mdcontrol);
     m_measures->hide();
+    m_mdcontrol->hide();
+
     if ( dynamic_cast<QJobUVWidget*>(q) )
     {
     QUVWidget* uvwidget = ( static_cast<QUVWidget*> (q->widget(1)));
@@ -1130,6 +1146,7 @@ void KryoMolMainWindow::InitWidgets(kryomol::JobType t,bool hasdensity,bool haso
     QJobWidget* jq = ( static_cast<QJobWidget*> ( m_stackedwidget->currentWidget()));
     m_world = jq->GetWorld();
     m_measures = ( static_cast<QMeasureWidget*> ( jq->findChild<QMeasureWidget*>() ));
+    m_mdcontrol = ( static_cast<QMolecularListControl*> ( jq->findChild<QMolecularListControl*>() ));
     m_orbitals = ( static_cast<QOrbitalWidget*> ( jq->findChild<QOrbitalWidget*>() ));
     setCentralWidget(m_stackedwidget);
     FinishGaussian();

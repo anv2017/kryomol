@@ -35,7 +35,7 @@ public:
     void PlotSpectrum();
     void InitialPlotSpectrum();
     void SetType(SpectrumType type) {m_type = type;}
-
+    void SetColors(const std::vector<QColor>& colors) { m_colors=colors; }
 public slots:
   void SetData(const std::vector<fidarray>* data,const fidarray* totaldata,float,float, float);
   void OnIncrease();
@@ -60,6 +60,7 @@ private:
     float m_factor;
     SpectrumType m_type;
     BaseLinePosition m_baseline;
+    std::vector<QColor> m_colors;
 
 };
 

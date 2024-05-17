@@ -20,6 +20,13 @@ the Free Software Foundation version 2 of the License.
 #include "ringperceptor.h"
 #include "grid.h"
 
+
+struct fcolor {
+    float h;
+    float s;
+    float l;
+};
+
 class kryomol::FramePrivate
 {
 public:
@@ -54,6 +61,7 @@ public:
     std::vector<RenderDensity> m_positivedensity;
     std::vector<RenderDensity> m_negativedensity;
     std::vector< std::vector<TransitionChange> > m_transitionchanges;
+    fcolor m_color;
 };
 
 using namespace kryomol;
@@ -549,6 +557,20 @@ void Frame::CalculateGrid(float step)
     qDebug() << "Grid dimension: x=" << xmax << " y=" << ymax << " z=" << zmax << " l=" << lmax <<endl;
 
     m_private->m_grid = Grid(xmax,ymax,zmax,step,lmax);
+}
+
+void Frame::SetColor(float h, float s, float l)
+{
+    m_private->m_color.h=h;
+    m_private->m_color.s=s;
+    m_private->m_color.l=l;
+}
+
+void Frame::GetColor(float& h, float& s, float& l) const
+{
+    h=m_private->m_color.h;
+    s=m_private->m_color.s;
+    l=m_private->m_color.l;
 }
 
 
