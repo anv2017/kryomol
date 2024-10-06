@@ -155,7 +155,9 @@ float UVSpectrum::GetIntensityAt(float lambda,const std::vector<Sinusoid>& sdd)
     {
         //Get the transition uv value in ev
         float deltae=1240/s.m_flfrequency;
-        float sigma=s.m_fldecay/2.3548; //FWHM
+        constexpr float stofwhm=2*std::sqrt(2*std::log(2));
+        std::cout << stofwhm << std::endl;
+        float sigma=s.m_fldecay/stofwhm; //FWHM
         float expfactor=(eval-deltae)/(sigma);
         float cd=(1/sigma)*deltae*s.m_flamplitude*exp(-( expfactor*expfactor )/2 );
 
