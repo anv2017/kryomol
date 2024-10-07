@@ -93,9 +93,8 @@ void QJobFreqWidget::OnShowSpectrum ( bool bshow )
 
 
     QPlotSpectrum* jc= ir->GetSpectrum();
-    jc->SetType(QPlotSpectrum::IR);
     connect ( fw,SIGNAL ( data ( fidarray*,float,float, float ) ),jc,SLOT ( SetData ( fidarray*,float,float,float ) ) );
-    jc->SetData ( &fw->GetData(),&fw->GetTotalData(),fw->Max(),fw->Min(), fw->Shift());
+    jc->SetData ( &fw->GetData(),&fw->GetTotalData(),fw->Max(),fw->Min(), fw->Shift(),QPlotSpectrum::IR);
 
     //Change the size of the widgets in the splitter
     QList<int> list = vsplit->sizes();

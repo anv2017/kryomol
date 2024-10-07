@@ -34,7 +34,7 @@ class World;
 
 class KRYOMOLCORE_EXPORT QUVWidget : public QWidget, public UVSpectrum, private Ui::QUVWidgetBase
 {
-  Q_OBJECT
+    Q_OBJECT
 
 
 public:
@@ -48,64 +48,64 @@ public:
     void SetBeta(bool b) {m_beta = b;}
     void UpdatePlot();
 signals:
-  void showspectrum(bool);
-  void data(const std::vector<fidarray>* d,const fidarray* td,float,float,float);
-  void type(QPlotSpectrum::SpectrumType);
-  void showelectricdipole(bool );
-  void showmagneticdipole(bool );
-  void showvelocitydipole(bool );
-  void showtransitionchanges(bool);
-  void transitionselected(int );
-  void showtransition(int );
-  void showdensities(int );
-  void offshowtransitions(bool);
-  void setactivetransition(int);
+    void showspectrum(bool);
+    void data(const std::vector<fidarray>* d,const fidarray* td,float,float,float,QPlotSpectrum::SpectrumType);
+    //void type(QPlotSpectrum::SpectrumType);
+    void showelectricdipole(bool );
+    void showmagneticdipole(bool );
+    void showvelocitydipole(bool );
+    void showtransitionchanges(bool);
+    void transitionselected(int );
+    void showtransition(int );
+    void showdensities(int );
+    void offshowtransitions(bool);
+    void setactivetransition(int);
 private slots:
-  //void OnSortItems(int);
-  void OnWriteJCampDX();
-  void OnCopy();
-  void OnShowSpectrum();
-  void OnSpectrumTypeChanged(int);
-  void OnSetLineWidth(double);
-  void OnSetShift(int);
-  void OnSetNPoints(int);
-  void OnChangeLimits();
-  void OnResetLimits();
-  void OnSetLimits(float, float);
-  void OnTransitionSelected(int );
-  void OffShowTransitionChanges(bool);
-  void OnShowTransitionChanges(bool);
-  void OnShowTransitionCoefficients(bool);
-  void OnShowDensityChanges(bool);
-  void OnShowElectricDipole(bool);
-  void OnShowMagneticDipole(bool);
-  void OnShowVelocityDipole(bool);
-  void OnCalculateEnantiomer(bool );
-  void OnFormalismChanged(int );
-  void OnSolventShift(bool b);
-  void OnBoltzmannCheckBox(bool b);
+    //void OnSortItems(int);
+    void OnWriteJCampDX();
+    void OnCopy();
+    void OnShowSpectrum();
+    void OnSpectrumTypeChanged(int);
+    void OnSetLineWidth(double);
+    void OnSetShift(int);
+    void OnSetNPoints(int);
+    void OnChangeLimits();
+    void OnResetLimits();
+    void OnSetLimits(float, float);
+    void OnTransitionSelected(int );
+    void OffShowTransitionChanges(bool);
+    void OnShowTransitionChanges(bool);
+    void OnShowTransitionCoefficients(bool);
+    void OnShowDensityChanges(bool);
+    void OnShowElectricDipole(bool);
+    void OnShowMagneticDipole(bool);
+    void OnShowVelocityDipole(bool);
+    void OnCalculateEnantiomer(bool );
+    void OnFormalismChanged(int );
+    void OnSolventShift(bool b);
+    void OnBoltzmannCheckBox(bool b);
 private:
-  void InitTransitionTable(int );
+    void InitTransitionTable(int );
 
-  //void OnRenderOptionsChange();
+    //void OnRenderOptionsChange();
 
 private:
-  QUVWidget(QWidget* parent=0, const char* name=0);
+    QUVWidget(QWidget* parent=0, const char* name=0);
 private:
-  bool m_bshowspectrum;
-  bool m_bshowcoefficients;
-  bool m_bshowtransitions;
-  bool m_bshowdensities;
-  bool m_bshowelectricdipole;
-  bool m_bshowmagneticdipole;
-  bool m_bshowvelocitydipole;
-  bool m_bsolventshift;
-  bool m_beta;
-  /** a vector holding coefficients for orbital transitions for each spectral line for each conformation*/
-  std::vector< std::vector< std::vector<kryomol::TransitionChange> > > m_transitions;
-  QLogTableWidget* m_uvTable;
-  QVBoxLayout* m_tablelay;
-  const kryomol::World* m_world;
+    bool m_bshowspectrum;
+    bool m_bshowcoefficients;
+    bool m_bshowtransitions;
+    bool m_bshowdensities;
+    bool m_bshowelectricdipole;
+    bool m_bshowmagneticdipole;
+    bool m_bshowvelocitydipole;
+    bool m_bsolventshift;
+    bool m_beta;
+    /** a vector holding coefficients for orbital transitions for each spectral line for each conformation*/
+    std::vector< std::vector< std::vector<kryomol::TransitionChange> > > m_transitions;
+    QLogTableWidget* m_uvTable;
+    QVBoxLayout* m_tablelay;
+    const kryomol::World* m_world;
 
 
 };

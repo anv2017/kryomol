@@ -145,17 +145,37 @@ void UVSpectrum::CalculateSpectrum()
     }
 }
 
-//We are using the following equation
+//return Mol-1 cm-1
 float UVSpectrum::GetIntensityAt(float lambda,const std::vector<Sinusoid>& sdd)
 {
-    float eval=1240/lambda;
-    float prefactor=1/(22.97*sqrt(2*M_PI));
+    //e=hc/\lambda
+    constexpr float ltoev=PC::h*PC::jtoev*PC::c*1e9;
+    std::cout << ltoev << std::endl;
+    float eval=ltoev/lambda;
+    float prefactor;
+    double uvfactor=2.870e4/std::sqrt(2*M_PI);
+    double ecdfactor=1/(22.97*std::sqrt(2*M_PI));
+    switch(  this->GetType() )
+    {
+    case QPlotSpectrum::UV:
+        prefactor=uvfactor;
+        break;
+    case QPlotSpectrum::ECD:
+        prefactor=ecdfactor;
+        break;
+    default:
+        throw std::runtime_error("Invalid spectrum type");
+
+    }
+
     float sumsignals=0;
     for( const auto& s : sdd)
     {
         //Get the transition uv value in ev
-        float deltae=1240/s.m_flfrequency;
-        constexpr float stofwhm=2*std::sqrt(2*std::log(2));
+        float deltae=ltoev/s.m_flfrequency;
+        //constexpr float stofwhm=2*std::sqrt(2*std::log(2));
+        //This is the factor to convert standard deviation to FWHM
+        float stofwhm=2*std::sqrt(2*std::log(2));
         std::cout << stofwhm << std::endl;
         float sigma=s.m_fldecay/stofwhm; //FWHM
         float expfactor=(eval-deltae)/(sigma);

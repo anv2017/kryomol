@@ -104,8 +104,8 @@ void QJobUVWidget::OnShowUVSpectrum ( bool bshow )
 
 
     QPlotSpectrum* jc= ir->GetSpectrum();
-    jc->SetType(QPlotSpectrum::UV);
-    connect ( fw,SIGNAL ( data ( const std::vector<fidarray>*,const fidarray*,float,float,float) ),jc,SLOT ( SetData ( const std::vector<fidarray>*,const fidarray*,float,float,float) ) );
+    //jc->SetType(QPlotSpectrum::UV);
+    connect ( fw,SIGNAL ( data ( const std::vector<fidarray>*,const fidarray*,float,float,float,QPlotSpectrum::SpectrumType) ),jc,SLOT ( SetData ( const std::vector<fidarray>*,const fidarray*,float,float,float,QPlotSpectrum::SpectrumType) ) );
     std::vector<QColor> colors;
     for( const auto& f : this->GetWorld()->CurrentMolecule()->Frames() )
     {
@@ -114,7 +114,7 @@ void QJobUVWidget::OnShowUVSpectrum ( bool bshow )
         colors.push_back(QColor::fromHslF(h,s,l));
     }
     jc->SetColors(colors);
-    jc->SetData ( fw->GetData(),fw->GetTotalData(),fw->Max(),fw->Min(), fw->Shift());
+    jc->SetData ( fw->GetData(),fw->GetTotalData(),fw->Max(),fw->Min(), fw->Shift(),QPlotSpectrum::UV);
     //set the colors
 
 

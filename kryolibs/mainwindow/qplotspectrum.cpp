@@ -54,7 +54,8 @@ QPlotSpectrum::QPlotSpectrum (QWidget *parent) : QWidget (parent), m_data(nullpt
 QPlotSpectrum::~QPlotSpectrum()
 {}
 
-void QPlotSpectrum::SetData(const std::vector<fidarray>* data, const fidarray* totaldata, float max, float min, float shift)
+void QPlotSpectrum::SetData(const std::vector<fidarray>* data, const fidarray* totaldata,
+                            float max, float min, float shift,QPlotSpectrum::SpectrumType t)
 {
     qDebug() << "number of datasets" << data->size() << Qt::endl;
     for( const auto& x : *data)
@@ -70,7 +71,41 @@ void QPlotSpectrum::SetData(const std::vector<fidarray>* data, const fidarray* t
     m_min = min;
     m_shift = shift;
     m_totaldata=totaldata;
+    m_type=t;
     PlotSpectrum();
+}
+
+void QPlotSpectrum::SetAxisTitles()
+{
+    QString xtitle,ytitle;
+    switch(m_type)
+    {
+    case UV:
+        //\lambda nm
+        xtitle=QString(u8"\u03BB (nm)");
+        //\epsilon (M-1 cm-1)
+        ytitle=(u8"\u03B5 (M\u207B\u2071 cm\u207B\u2071)");
+        break;
+    case ECD:
+        //\lambda nm
+        xtitle=QString(u8"\u03BB (nm)");
+        //\Delta\epsilon (M-1 cm-1)
+        ytitle=(u8"\u0394\u03B5 (M\u207B\u2071 cm\u207B\u2071)");
+        break;
+    case IR:
+        xtitle="(cm\u207B\u2071)";
+        break;
+    case VCD:
+        xtitle="(cm\u207B\u2071)";
+        break;
+    case RAMAN:
+        xtitle="(cm\u207B\u2071)";
+        break;
+    }
+
+    m_plot->setAxisTitle( QwtPlot::xBottom, xtitle );
+    m_plot->setAxisTitle( QwtPlot::yLeft, ytitle );
+    m_plot->replot();
 }
 
 void QPlotSpectrum::PlotSpectrum()
@@ -156,26 +191,11 @@ void QPlotSpectrum::PlotSpectrum()
     QRectF rect = m_curves.front()->boundingRect();
 
     m_zoom->setZoomBase(rect);
-    QString axtitle;
-    float baseline;
-    switch(m_type)
+    float baseline=m_zoom->zoomRect().height();
+    //Move to the middle for ECD or VCD
+    if ( m_type == ECD || m_type == VCD )
     {
-    case UV:
-        axtitle="(eV)";
-        baseline=m_zoom->zoomRect().height();
-        break;
-    case ECD:
-        axtitle="(eV)";
-        baseline=m_zoom->zoomRect().height()*0.5;
-        break;
-    case IR:
-        axtitle="(cm-1)";
-        baseline=m_zoom->zoomRect().height();
-        break;
-    case VCD:
-        axtitle="(cm-1)";
-        baseline=m_zoom->zoomRect().height()*0.5;
-        break;
+      baseline=m_zoom->zoomRect().height()*0.5;
     }
 
     for(auto& c : m_curves)
@@ -183,6 +203,8 @@ void QPlotSpectrum::PlotSpectrum()
         c->setBaseline(baseline);
     }
     ct->setBaseline(baseline);
+
+    this->SetAxisTitles();
 
     m_plot->replot();
 

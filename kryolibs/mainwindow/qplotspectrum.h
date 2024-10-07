@@ -36,8 +36,9 @@ public:
     void InitialPlotSpectrum();
     void SetType(SpectrumType type) {m_type = type;}
     void SetColors(const std::vector<QColor>& colors) { m_colors=colors; }
+    void SetAxisTitles();
 public slots:
-  void SetData(const std::vector<fidarray>* data,const fidarray* totaldata,float,float, float);
+  void SetData(const std::vector<fidarray>* data, const fidarray* totaldata, float, float, float, SpectrumType t);
   void OnIncrease();
   void OnDecrease();
   void OnZoom(bool);

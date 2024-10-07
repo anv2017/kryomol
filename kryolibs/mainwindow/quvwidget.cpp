@@ -107,8 +107,8 @@ QUVWidget::~QUVWidget()
 void QUVWidget::OnShowSpectrum()
 {
     emit showspectrum(m_bshowspectrum);
-    emit type(GetType()); //to stablish the baseline
-    emit data(GetData(),GetTotalData(),Max(),Min(),Shift());
+    //emit type(GetType()); //to stablish the baseline
+    emit data(GetData(),GetTotalData(),Max(),Min(),Shift(),this->GetType());
 
     m_bshowspectrum=!m_bshowspectrum;
 
@@ -300,29 +300,29 @@ void QUVWidget::OnSpectrumTypeChanged(int t)
         _ECDFormalismComboBox->show();
     }
     InitTable(this->m_world->CurrentMolecule()->CurrentFrameIndex());
-    emit data(GetData(),GetTotalData(),Max(),Min(),Shift());
-    emit type(GetType());
+    emit data(GetData(),GetTotalData(),Max(),Min(),Shift(),this->GetType());
+
 }
 
 void QUVWidget::OnSetLineWidth(double lw)
 {
     SetLineWidth(lw);
     CalculateSpectrum();
-    emit data(GetData(),GetTotalData(),Max(),Min(),Shift());
+    emit data(GetData(),GetTotalData(),Max(),Min(),Shift(),this->GetType());
 }
 
 void QUVWidget::OnSetShift(int lw)
 {
     SetShift(lw);
     CalculateSpectrum();
-    emit data(GetData(),GetTotalData(),Max(),Min(),Shift());
+    emit data(GetData(),GetTotalData(),Max(),Min(),Shift(),this->GetType());
 }
 
 void QUVWidget::OnSetNPoints(int lw)
 {
     SetNPoints(lw);
     CalculateSpectrum();
-    emit data(GetData(),GetTotalData(),Max(),Min(),Shift());
+    emit data(GetData(),GetTotalData(),Max(),Min(),Shift(),this->GetType());
 }
 
 
@@ -342,7 +342,7 @@ void QUVWidget::OnResetLimits()
 
 void QUVWidget::UpdatePlot()
 {
-    emit data(GetData(),GetTotalData(),Max(),Min(),Shift());
+    emit data(GetData(),GetTotalData(),Max(),Min(),Shift(),this->GetType());
 }
 
 void QUVWidget::OnChangeLimits()
