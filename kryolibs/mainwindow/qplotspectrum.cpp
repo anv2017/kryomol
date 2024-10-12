@@ -61,10 +61,10 @@ void QPlotSpectrum::SetData(const std::vector<fidarray>* data, const fidarray* t
     for( const auto& x : *data)
     {
         qDebug() << "size of fidarray" << x.size() << Qt::endl;
-        for(size_t i=0;i<x.size();++i)
+        /*for(size_t i=0;i<x.size();++i)
         {
             qDebug() << x[i].real() << Qt::endl;
-        }
+        }*/
     }
     m_data = data;
     m_max = max;
