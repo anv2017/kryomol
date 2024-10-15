@@ -382,7 +382,7 @@ void UVSpectrum::SetAutoLimits()
 void UVSpectrum::SetEnantiomer(bool b)
 {
     m_benantiomer=b;
-    RecalculateX();
+    SetLines(m_linesets);
 }
 
 void UVSpectrum::SetFormalism(formalism f)
