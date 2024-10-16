@@ -95,7 +95,7 @@ void QJobUVWidget::OnShowUVSpectrum ( bool bshow )
     w->setSizePolicy ( QSizePolicy::Expanding,QSizePolicy::Expanding );
     vsplit->addWidget(w);
     //add the Spectrum drawing widget
-    QIRWidget* ir= new QIRWidget ( vsplit );
+    QIRWidget* ir= new QIRWidget ( this->GetWorld(),vsplit );
     vsplit->addWidget(ir);
     vsplit->setStretchFactor ( vsplit->indexOf(ir), 0);
 

@@ -18,19 +18,27 @@ the Free Software Foundation version 2 of the License.
 
 class QJCDrawing;
 class QPlotSpectrum;
+class ConfManager;
+
+namespace kryomol {
+class World;
+}
 
 class KRYOMOLCORE_EXPORT QIRWidget : public QWidget, private Ui::QIRWidgetBase
 {
- Q_OBJECT
+    Q_OBJECT
 public:
-    QIRWidget(QWidget* parent=0);
+    QIRWidget(kryomol::World* w, QWidget* parent=0);
 
     ~QIRWidget();
     QPlotSpectrum* GetSpectrum() const { return m_spectrum; }
 private:
-  void InitButtons();
+    void InitButtons();
+private slots:
+    void OnShowConformers(bool );
 private:
-  QPlotSpectrum* m_spectrum;
+    QPlotSpectrum* m_spectrum;
+    ConfManager* m_confmanager;
 
 };
 

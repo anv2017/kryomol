@@ -13,6 +13,7 @@ INSTALLS += target icons conf
 
 
 HEADERS += qmoleculartreewidget.h \
+           confmanager.h \
            qmolecularlistcontrol.h \ 
 	   qpdbcontrol.h \
            qfreqwidget.h \
@@ -30,6 +31,7 @@ HEADERS += qmoleculartreewidget.h \
            yonlydata.h
 
 SOURCES += qmoleculartreewidget.cpp \
+    confmanager.cpp \
            qmolecularlistcontrol.cpp \
 	   qpdbcontrol.cpp \
            qfreqwidget.cpp \
