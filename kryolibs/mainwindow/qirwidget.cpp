@@ -34,6 +34,7 @@ QIRWidget::QIRWidget(kryomol::World* w, QWidget* parent ) :  QWidget(parent)
     m_confmanager->setVisible(false);
     hlay->addWidget(m_spectrum);
     hlay->addWidget(m_confmanager);
+    connect(m_confmanager,&ConfManager::visible,m_spectrum,&QPlotSpectrum::SetVisible);
 
 
 

@@ -11,6 +11,7 @@ class World;
 }
 
 class QTreeWidget;
+class QTreeWidgetItem;
 
 class KRYOMOLCORE_EXPORT ConfManager : public QWidget
 {
@@ -20,6 +21,9 @@ public:
 
 
 signals:
+    void visible(bool, const std::vector<bool>& );
+private slots:
+    void OnItemChanged(QTreeWidgetItem* item);
 private:
     void InitTree();
 private:

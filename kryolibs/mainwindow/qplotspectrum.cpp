@@ -49,6 +49,8 @@ QPlotSpectrum::QPlotSpectrum (QWidget *parent) : QWidget (parent), m_data(nullpt
 
     m_zoom = new QwtPlotZoomer (m_plot->canvas());
     m_zoom->setEnabled(false);
+    m_showaverage=true;
+
 }
 
 QPlotSpectrum::~QPlotSpectrum()
@@ -72,6 +74,7 @@ void QPlotSpectrum::SetData(const std::vector<fidarray>* data, const fidarray* t
     m_shift = shift;
     m_totaldata=totaldata;
     m_type=t;
+    if ( m_showcurves.empty() ) m_showcurves=std::vector<bool>(data->size(),true);
     PlotSpectrum();
 }
 
@@ -129,16 +132,12 @@ void QPlotSpectrum::PlotSpectrum()
     m_curves.clear();
     m_curves.resize(datasets.size());
 
-    float huestep=0.8/m_curves.size();
-    float lowhue=0.1;
-    //for(auto& c : m_curves)
-
     for(size_t i=0;i<m_curves.size();++i)
     {
-        m_curves[i]=new QwtPlotCurve;
-        m_curves[i]= new QwtPlotCurve();
+        m_curves[i] = new QwtPlotCurve();
         m_curves[i]->setStyle(QwtPlotCurve::Lines);
         m_curves[i]->setPen(QPen(m_colors[i]));
+        m_curves[i]->setVisible(m_showcurves[i]);
     }
 
 
@@ -181,11 +180,12 @@ void QPlotSpectrum::PlotSpectrum()
         m_y.push_back((*m_totaldata)[i].real());
         vx+=step;
     }
-    for(int i=0;i<m_y.size();++i)
+    /*for(int i=0;i<m_y.size();++i)
     {
         qDebug() << "m_y" << m_y[i] << Qt::endl;
-    }
+    }*/
     ct->setSamples(m_x,m_y);
+    ct->setVisible(m_showaverage);
     ct->attach(m_plot);
 
     QRectF rect = m_curves.front()->boundingRect();
@@ -340,3 +340,10 @@ void QPlotSpectrum::OnSVGPicture ()
     //    p.end();
 }
 
+
+void QPlotSpectrum::SetVisible(bool b,const std::vector<bool> & vb)
+{
+    m_showaverage=b;
+    m_showcurves=vb;
+    PlotSpectrum();
+}

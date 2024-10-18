@@ -39,13 +39,14 @@ public:
     void SetAxisTitles();
 public slots:
     void SetData(const std::vector<fidarray>* data, const fidarray* totaldata, float, float, float, QPlotSpectrum::SpectrumType t);
-  void OnIncrease();
-  void OnDecrease();
-  void OnZoom(bool);
-  void ResetZoom();
-  void OnPrint();
-  void OnBitmapPicture ();
-  void OnSVGPicture ();
+    void OnIncrease();
+    void OnDecrease();
+    void OnZoom(bool);
+    void ResetZoom();
+    void OnPrint();
+    void OnBitmapPicture ();
+    void OnSVGPicture ();
+    void SetVisible(bool b,const std::vector<bool>& );
 
 private:
     QwtPlot* m_plot;
@@ -62,6 +63,8 @@ private:
     SpectrumType m_type;
     BaseLinePosition m_baseline;
     std::vector<QColor> m_colors;
+    bool m_showaverage;
+    std::vector<bool> m_showcurves;
 
 };
 
