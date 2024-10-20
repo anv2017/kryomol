@@ -17,21 +17,22 @@ the Free Software Foundation version 2 of the License.
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
+#include "atom.h"
 
 
 
 class kryomol::KryoMolApplicationPrivate
 {
-   public:
-   KryoMolApplicationPrivate()
-   {
-     m_loader= new PluginLoader();
-   }
-   ~KryoMolApplicationPrivate()
+public:
+    KryoMolApplicationPrivate()
     {
-       delete m_loader;
+        m_loader= new PluginLoader();
     }
-   kryomol::PluginLoader* m_loader;
+    ~KryoMolApplicationPrivate()
+    {
+        delete m_loader;
+    }
+    kryomol::PluginLoader* m_loader;
 
 };
 
@@ -45,10 +46,10 @@ Bult a GUI enabled QryoMol main application
 */
 KryoMolApplication::KryoMolApplication ( int & argc, char** argv ) : QApplication(argc,argv)
 {
-  _d = new KryoMolApplicationPrivate();
-  
-  //setOrganizationName(orgname);
-  //setApplicationName(aname);
+    _d = new KryoMolApplicationPrivate();
+    kryomol::BuildPeriodicTable();
+    //setOrganizationName(orgname);
+    //setApplicationName(aname);
 }
 
 /** \brief KryoMol main application constructor
@@ -58,32 +59,33 @@ KryoMolApplication::KryoMolApplication ( int & argc, char** argv ) : QApplicatio
 */
 KryoMolApplication::KryoMolApplication( int & argc, char ** argv, bool GUIenabled ) : QApplication(argc,argv,GUIenabled)
 {
- _d = new KryoMolApplicationPrivate();
-  //setOrganizationName(orgname);
-  //setApplicationName(aname);
+    _d = new KryoMolApplicationPrivate();
+    kryomol::BuildPeriodicTable();
+    //setOrganizationName(orgname);
+    //setApplicationName(aname);
 }
 
 KryoMolApplication::~KryoMolApplication()
 {
-  delete _d;
+    delete _d;
 }
 
 /** \return The local path of the currently loaded molecular structure file*/
 QString KryoMolApplication::File()
 {
-  return m_file;
+    return m_file;
 }
 
 /** Set the path to the currently loaded molecular structure file*/
 void KryoMolApplication::SetFile(const QString& file)
 {
-  m_file=file;
+    m_file=file;
 }
 
 /** Set the path to the currently loaded molecular structure file*/
 void KryoMolApplication::SetFile(const char* file)
 {
-  m_file=file;
+    m_file=file;
 }
 
 /** 
@@ -91,7 +93,7 @@ void KryoMolApplication::SetFile(const char* file)
  */
 std::vector<kryomol::Plugin*>& KryoMolApplication::Plugins()
 {
-  return _d->m_loader->Plugins();
+    return _d->m_loader->Plugins();
 }
 
 
@@ -101,7 +103,7 @@ This method will load the plugins at runtime using a PluginLoader object
 */
 void KryoMolApplication::InitializePlugins()
 {
-  _d->m_loader->Load();
+    _d->m_loader->Load();
 }
 
 /** \brief Load the KryoMol plugins
@@ -110,35 +112,35 @@ This method will load the plugins at runtime using a PluginLoader object
 */
 void KryoMolApplication::LoadPlugins()
 {
-  _d->m_loader->Load();
+    _d->m_loader->Load();
 }
 
 QString KryoMolApplication::Authors() const
 {
-  //return kryomol::authors;
+    //return kryomol::authors;
 }
 
 QString KryoMolApplication::URL() const
 {
-  //return kryomol::url;
+    //return kryomol::url;
 }
 QString KryoMolApplication::Version() const
 {
-  //return kryomol::version;
+    //return kryomol::version;
 }
 
 bool KryoMolApplication::notify(QObject* receiver, QEvent* e)
 {
-  try
-  {
-    return QApplication::notify(receiver,e);
-  }
-  catch(std::exception& e)
-  {
-     QMessageBox k;
-     k.setText(QString(e.what()));
-     k.exec();
-	 return true;
-  }
+    try
+    {
+        return QApplication::notify(receiver,e);
+    }
+    catch(std::exception& e)
+    {
+        QMessageBox k;
+        k.setText(QString(e.what()));
+        k.exec();
+        return true;
+    }
 
 }

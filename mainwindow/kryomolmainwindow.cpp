@@ -146,7 +146,6 @@ void KryoMolMainWindow::InitToolBars()
 void KryoMolMainWindow::Init()
 {
     m_app=dynamic_cast<kryomol::KryoMolApplication*>qApp;;
-    kryomol::BuildPeriodicTable();
     m_world = new kryomol::World(this);
     m_stackedwidget = new QStackedWidget (this);
 
