@@ -50,6 +50,7 @@ QPlotSpectrum::QPlotSpectrum (QWidget *parent) : QWidget (parent), m_data(nullpt
     m_zoom = new QwtPlotZoomer (m_plot->canvas());
     m_zoom->setEnabled(false);
     m_showaverage=true;
+    m_scaledtopop=true;
 
 }
 
@@ -75,6 +76,7 @@ void QPlotSpectrum::SetData(const std::vector<fidarray>* data, const fidarray* t
     m_totaldata=totaldata;
     m_type=t;
     if ( m_showcurves.empty() ) m_showcurves=std::vector<bool>(data->size(),true);
+    if ( m_weights.empty() ) m_weights=std::vector<double>(data->size(),1.0/data->size());
     PlotSpectrum();
 }
 
@@ -147,6 +149,9 @@ void QPlotSpectrum::PlotSpectrum()
     double step;
     step = (m_max-m_min)/datasets.front().size();
 
+    QVector<double> tdata(datasets.front().size(),0.0);
+
+
     for(size_t i=0;i<datasets.size();++i)
     {
         double vx = m_min;
@@ -154,10 +159,16 @@ void QPlotSpectrum::PlotSpectrum()
         auto& c=m_curves[i];
         m_x.clear();
         m_y.clear();
-        for (size_t i = 0; i < d.size(); ++i)
+        for (size_t j = 0; j < d.size(); ++j)
         {
             m_x.push_back(vx);
-            m_y.push_back(d[i].real());
+            double y=d[j].real();
+            m_y.push_back(y);
+            if ( this->m_scaledtopop )
+            {
+                m_y.back()*=m_weights[i];;
+            }
+            tdata[j]+=(y*m_weights[i]);
             vx = vx + step;
         }
         c->setSamples(m_x,m_y);
@@ -177,14 +188,14 @@ void QPlotSpectrum::PlotSpectrum()
     for(size_t i=0;i<m_totaldata->size();++i)
     {
         m_x.push_back(vx);
-        m_y.push_back((*m_totaldata)[i].real());
+        //m_y.push_back((*m_totaldata)[i].real());
         vx+=step;
     }
     /*for(int i=0;i<m_y.size();++i)
     {
         qDebug() << "m_y" << m_y[i] << Qt::endl;
     }*/
-    ct->setSamples(m_x,m_y);
+    ct->setSamples(m_x,tdata);
     ct->setVisible(m_showaverage);
     ct->attach(m_plot);
 
@@ -346,4 +357,18 @@ void QPlotSpectrum::SetVisible(bool b,const std::vector<bool> & vb)
     m_showaverage=b;
     m_showcurves=vb;
     PlotSpectrum();
+}
+
+void QPlotSpectrum::ScaleToPopulation(bool b)
+{
+
+    m_scaledtopop=b;
+    PlotSpectrum();
+}
+
+void QPlotSpectrum::SetPopulations(const std::vector<double>& w)
+{
+    m_weights=w;
+    PlotSpectrum();
+
 }

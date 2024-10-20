@@ -35,8 +35,8 @@ UVSpectrum::UVSpectrum() : m_spectrumtype(QPlotSpectrum::UV)
     m_shift = 0.0;
     m_formalism=length;
     m_benantiomer=false;
-    m_boltzw=useboltzmannweighting;
-    m_populations=nullptr;
+    //m_boltzw=useboltzmannweighting;
+    //m_populations=nullptr;
 }
 
 UVSpectrum::~UVSpectrum()
@@ -52,7 +52,7 @@ void UVSpectrum::SetLines(std::vector< std::vector<Spectralline> >& v,double sca
         m_sinusoidsets[idx].resize(nlines);
     }
 
-    m_weights=std::vector<float>(m_linesets.size(),1.0f/m_linesets.size());
+    //m_weights=std::vector<float>(m_linesets.size(),1.0f/m_linesets.size());
 
     for (auto& lineset : v )
     {
@@ -132,14 +132,14 @@ void UVSpectrum::CalculateSpectrum()
             float m=min+k*fdelta_v;
             d[k]=GetIntensityAt(m,m_sinusoidsets[idx]);
 
-            if ( this->BoltzmannWeighting() )
+            /*if ( this->BoltzmannWeighting() )
             {
                 double p=(*m_populations)[idx];
                 d[k]*=p;
             } else
             {
                 d[k]*=m_weights[idx];
-            }
+            }*/
             m_totaldata[k]+=(d[k]);
         }    
     }

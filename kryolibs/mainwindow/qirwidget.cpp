@@ -19,22 +19,35 @@ the Free Software Foundation version 2 of the License.
 //Added by qt3to4:
 #include <QVBoxLayout>
 #include <QPixmap>
+#include <QCheckBox>
 
 #include "confmanager.h"
+#include "world.h"
+#include "molecule.h"
 
 
-QIRWidget::QIRWidget(kryomol::World* w, QWidget* parent ) :  QWidget(parent)
+QIRWidget::QIRWidget(kryomol::World* w, QWidget* parent ) :  QWidget(parent), m_world(w)
 {  
     setupUi(this);
     QHBoxLayout* hlay= new QHBoxLayout(_spectrumFrame);
+    QVBoxLayout* vlay = new QVBoxLayout(_spectrumFrame);
 
     m_spectrum= new QPlotSpectrum(_spectrumFrame);
     m_spectrum->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_confmanager = new ConfManager(w,this);
     m_confmanager->setVisible(false);
     hlay->addWidget(m_spectrum);
-    hlay->addWidget(m_confmanager);
+    hlay->addLayout(vlay);
+    vlay->addWidget(m_confmanager);
+    QCheckBox* sctopop = new QCheckBox("Scale with population",_spectrumFrame);
+    sctopop->setChecked(m_spectrum->ScaledToPopulation());
+    vlay->addWidget(sctopop);
+    QPushButton* popbutton= new QPushButton("Get populations",_spectrumFrame);
+    vlay->addWidget(popbutton);
+    connect(popbutton,&QPushButton::clicked,this,&QIRWidget::OnGetPopulations);
+    connect(sctopop,&QCheckBox::toggled,m_spectrum,&QPlotSpectrum::ScaleToPopulation);
     connect(m_confmanager,&ConfManager::visible,m_spectrum,&QPlotSpectrum::SetVisible);
+    connect(this,&QIRWidget::populations,m_spectrum,&QPlotSpectrum::SetPopulations);
 
 
 
@@ -66,6 +79,14 @@ QIRWidget::~QIRWidget()
 void QIRWidget::OnShowConformers(bool b)
 {
     m_confmanager->setVisible(b);
+}
+
+void QIRWidget::OnGetPopulations()
+{
+    std::vector<double> pops=m_world->CurrentMolecule()->Populations();
+    m_confmanager->Refresh();
+    emit populations(pops);
+
 }
 
 

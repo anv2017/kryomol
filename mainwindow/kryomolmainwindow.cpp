@@ -2376,16 +2376,17 @@ void KryoMolMainWindow::OnOpenConfButton()
 
     if ( m_mdcontrol->isHidden() )
     {
-        list[2] = m_size.width()/4;
+        /*list[2] = m_size.width()/4;
         list[0] = list[0] - m_size.width()/4;
-        q->setSizes(list);
+        q->setSizes(list);*/
         m_mdcontrol->show();
+        q->refresh();
     }
     else
     {
-        list[0] = list[0] + m_size.width()/4;
+        /*list[0] = list[0] + m_size.width()/4;
         list[2] = 0;
-        q->setSizes(list);
+        q->setSizes(list);*/
         m_mdcontrol->hide();
     }
 }

@@ -22,6 +22,8 @@ public:
 
 signals:
     void visible(bool, const std::vector<bool>& );
+public slots:
+    void Refresh();
 private slots:
     void OnItemChanged(QTreeWidgetItem* item);
 private:

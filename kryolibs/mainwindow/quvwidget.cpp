@@ -94,7 +94,7 @@ QUVWidget::QUVWidget(const kryomol::World* world, const QString& file, QWidget* 
     connect(_enantiomerButton,SIGNAL(toggled(bool)),this,SLOT(OnCalculateEnantiomer(bool )));
 
     connect(_boltzmannCheckBox,SIGNAL(toggled(bool)),this,SLOT(OnBoltzmannCheckBox(bool)));
-    this->SetPopulations(&world->CurrentMolecule()->Populations());
+    //this->SetPopulations(&world->CurrentMolecule()->Populations());
 
 }
 
@@ -555,6 +555,6 @@ void QUVWidget::OnFormalismChanged(int index)
 
 void QUVWidget::OnBoltzmannCheckBox(bool b)
 {
-    this->SetBoltzmannWeighting(b);
+    //this->SetBoltzmannWeighting(b);
 }
 

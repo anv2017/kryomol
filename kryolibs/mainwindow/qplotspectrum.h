@@ -47,6 +47,9 @@ public slots:
     void OnBitmapPicture ();
     void OnSVGPicture ();
     void SetVisible(bool b,const std::vector<bool>& );
+    void ScaleToPopulation(bool b);
+    bool ScaledToPopulation() const { return m_scaledtopop; }
+    void SetPopulations(const std::vector<double>& w);
 
 private:
     QwtPlot* m_plot;
@@ -65,6 +68,8 @@ private:
     std::vector<QColor> m_colors;
     bool m_showaverage;
     std::vector<bool> m_showcurves;
+    bool m_scaledtopop;
+    std::vector<double> m_weights;
 
 };
 

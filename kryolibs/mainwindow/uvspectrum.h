@@ -56,10 +56,10 @@ public:
   void SetEnantiomer(bool b);
   bool Enantiomer() const { return m_benantiomer; }
   /** set use boltzmann weighthing for averaged curve*/
-  void SetBoltzmannWeighting(bool b) { m_boltzw=b; }
+  //void SetBoltzmannWeighting(bool b) { m_boltzw=b; }
   /** true if using boltzmann weighthing for averaged curve*/
-  bool BoltzmannWeighting() const { return m_boltzw; }
-  void SetPopulations(const std::vector<double>* p) { m_populations=p; }
+  //bool BoltzmannWeighting() const { return m_boltzw; }
+  //void SetPopulations(const std::vector<double>* p) { m_populations=p; }
 
 
 
@@ -87,9 +87,9 @@ private:
   formalism m_formalism;
   bool m_benantiomer;
   bool m_bsubstractsolventshift;
-  std::vector<float> m_weights;
-  bool m_boltzw;
-  const std::vector<double>* m_populations;
+  //std::vector<float> m_weights;
+  //bool m_boltzw;
+  //const std::vector<double>* m_populations;
 };
 
 #endif

@@ -18,8 +18,14 @@ ConfManager::ConfManager(kryomol::World* w,QWidget* parent)
     InitTree();
 }
 
+void ConfManager::Refresh()
+{
+    InitTree();
+}
+
 void ConfManager::InitTree()
 {
+    m_tree->clear();
     QStringList headers;
     headers << "" << "Color" << "Population" << "Include" << "Show";
     m_tree->setColumnCount(headers.size());

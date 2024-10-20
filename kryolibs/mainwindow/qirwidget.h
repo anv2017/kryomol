@@ -32,13 +32,17 @@ public:
 
     ~QIRWidget();
     QPlotSpectrum* GetSpectrum() const { return m_spectrum; }
+signals:
+    void populations(const std::vector<double>& pops);
 private:
     void InitButtons();
 private slots:
     void OnShowConformers(bool );
+    void OnGetPopulations();
 private:
     QPlotSpectrum* m_spectrum;
     ConfManager* m_confmanager;
+    kryomol::World* m_world;
 
 };
 
