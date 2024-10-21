@@ -22,7 +22,10 @@ class World;
 
 };
 
-class QJobWidget : public QSplitter
+
+class QDockWidget;
+
+class QJobWidget : public Q
 {
 
     Q_OBJECT
@@ -30,12 +33,14 @@ class QJobWidget : public QSplitter
 public:
     QJobWidget(kryomol::World* world, QWidget *parent = 0);
     ~QJobWidget();
-
+    virtual BuilldVisor();
     kryomol::World* GetWorld() {return m_world;}
     void SetWorld(kryomol::World* world) {m_world = world;}
+    QList<QDockWidget*> DockWidgets() const { return m_dockwidgets; }
 
 private:
     kryomol::World* m_world;
+    QList<QWidget*> m_dockwidgets;
 
 };
 
