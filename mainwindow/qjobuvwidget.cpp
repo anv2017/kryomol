@@ -59,7 +59,7 @@ void QJobUVWidget::Init()
     m_uvwidget->InitTable(world->CurrentMolecule()->CurrentFrameIndex());
 
     //Add the visor and the FreqWidget to the splitter
-    this->addWidget(world->Visor());
+    //this->addWidget(world->Visor());
     this->addWidget(m_uvwidget);
 
     SetWorld(world);

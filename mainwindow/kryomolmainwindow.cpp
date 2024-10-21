@@ -67,7 +67,7 @@ const int fifosize = 20;
 
 KryoMolMainWindow::KryoMolMainWindow(QWidget *parent) : QMainWindow(),
     m_orcawidget(nullptr) , m_hasdensity(false), m_hasorbitals(false),
-    m_hasalphabeta(false)
+    m_hasalphabeta(false), m_world(nullptr)
 {
     Init();
 }
@@ -145,59 +145,58 @@ void KryoMolMainWindow::InitToolBars()
 
 void KryoMolMainWindow::Init()
 {
-    m_app=dynamic_cast<kryomol::KryoMolApplication*>qApp;;
-    m_world = new kryomol::World(this);
-    m_stackedwidget = new QStackedWidget (this);
+    m_app=dynamic_cast<kryomol::KryoMolApplication*>qApp;
+    m_world = new kryomol::World(this,World::glvisor);
+    m_glstack = new QStackedWidget(this);
+
+    m_glstack->addWidget(m_world->Visor());
+
+    this->setCentralWidget(m_glstack);
+
+    QDockWidget* rdock = new QDockWidget(this);
+
+    rdock->setAllowedAreas(Qt::RightDockWidgetArea);
+
+    m_tabwidget = new QTabWidget (rdock);
+    rdock->setWidget(m_tabwidget);
+    this->addDockWidget(Qt::RightDockWidgetArea,rdock);
 
     //Construct the visor and widgets
+    //conformers and population widget
+    m_uistack = new QStackedWidget(m_tabwidget);
+    m_mdcontrol = new QMolecularListControl(m_tabwidget);
+    //PDB residue listing and visualization options
+    m_pdbcontrol= new QPDBControl(m_tabwidget);
+    m_measures = new QMeasureWidget(m_tabwidget);
+    m_orbitals = new QOrbitalWidget(m_tabwidget);
 
-    m_world = new kryomol::World(this,World::glvisor);
+    m_tabwidget->addTab(m_uistack,"Computations");
+    m_tabwidget->addTab(m_mdcontrol,"Conformers");
+    m_tabwidget->addTab(m_pdbcontrol,"PDB");
+    m_tabwidget->addTab(m_measures,"Measurements");
+    m_tabwidget->addTab(m_orbitals,"Density");
 
-    m_mdcontrol = new QMolecularListControl(this);
-    m_pdbcontrol= new QPDBControl(this);
-    m_uistack = new QStackedWidget(this);
-    m_measures = new QMeasureWidget(this);
-    m_orbitals = new QOrbitalWidget(this);
 
-    connect( m_world->Visor(), SIGNAL ( distance ( QString& ) ), m_measures, SLOT ( OnWriteDistance ( QString& ) ) );
-    connect( m_world->Visor(), SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
-    connect( m_world->Visor(), SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
-    connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
-    connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
-    connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
-    connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
-    connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
-    connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
-
-    m_size = this->size();
-
-    QSplitter* q = new QSplitter(this);
-    q->addWidget(m_world->Visor());
-    q->addWidget(m_pdbcontrol);
-    q->addWidget(m_mdcontrol);
-    q->addWidget(m_uistack);
-    q->addWidget(m_measures);
-    q->addWidget(m_orbitals);
-
-    QList<int> list = q->sizes();
-    list[0] = m_size.width();
-    list[1] = 0;
-    list[2] = 0;
-    list[3] = 0;
-    list[4] = 0;
-    list[5] = 0;
-    q->setSizes(list);
 
     //Initially only the visor is showed
+    /*m_uistack->hide();
     m_pdbcontrol->hide();
     m_mdcontrol->hide();
-    m_uistack->hide();
     m_measures->hide();
-    m_orbitals->hide();
+    m_orbitals->hide();*/
 
-    m_stackedwidget->addWidget(q);
 
-    setCentralWidget(m_stackedwidget);
+    //CONNECTIONS
+    /*connect( m_world->Visor(), SIGNAL ( distance ( QString& ) ), m_measures, SLOT ( OnWriteDistance ( QString& ) ) );
+    connect( m_world->Visor(), SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
+    connect( m_world->Visor(), SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
+    connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );*/
+    //connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
+    //connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
+    //connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
+    //connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
+    //connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
+
 
     //Construct the tool bars
 
@@ -287,9 +286,9 @@ void KryoMolMainWindow::Init()
     QMenu* exportXYZmenu = new QMenu( tr("Export XYZ Coordinates"),this);
     exportgeommenu->addMenu( exportXYZmenu );
 
-    QAction* enantiomerAction = new QAction( tr("Enantiomerize"),this);
+    /*QAction* enantiomerAction = new QAction( tr("Enantiomerize"),this);
     connect ( enantiomerAction,SIGNAL ( triggered() ),m_world->Visor(), SLOT ( OnEnantiomerize() ) );
-    editmenu->addAction( enantiomerAction );
+    editmenu->addAction( enantiomerAction );*/
 
     QAction* exportRasterAction = new QAction ( tr ( "Export Raster Graphics" ),this );
     connect ( exportRasterAction,SIGNAL ( triggered() ),this, SLOT ( OnExportRasterGraphics() ) );
@@ -338,32 +337,32 @@ void KryoMolMainWindow::Init()
 
     QAction* shownumbers= new QAction ( tr("Show atom numbers"),this );
     shownumbers->setCheckable ( true );
-    shownumbers->setChecked ( m_world->Visor()->ShowNumbers() );
-    connect ( shownumbers,SIGNAL ( toggled ( bool ) ),m_world->Visor(),SLOT ( OnShowNumbers ( bool ) ) );
+    //shownumbers->setChecked ( m_world->Visor()->ShowNumbers() );
+    //connect ( shownumbers,SIGNAL ( toggled ( bool ) ),m_world->Visor(),SLOT ( OnShowNumbers ( bool ) ) );
     viewmenu->addAction ( shownumbers );
 
     QAction* showsymbols= new QAction ( tr("Show atom symbols") ,this );
     showsymbols->setCheckable ( true );
-    showsymbols->setChecked ( m_world->Visor()->ShowSymbols() );
-    connect ( showsymbols,SIGNAL ( toggled ( bool ) ),m_world->Visor(), SLOT ( OnShowSymbols ( bool ) ) );
+    //showsymbols->setChecked ( m_world->Visor()->ShowSymbols() );
+    //connect ( showsymbols,SIGNAL ( toggled ( bool ) ),m_world->Visor(), SLOT ( OnShowSymbols ( bool ) ) );
     viewmenu->addAction ( showsymbols );
 
     QAction* showpdbinfo= new QAction ( tr("Show PDB Info") ,this );
     showpdbinfo->setCheckable ( true );
-    showpdbinfo->setChecked ( m_world->Visor()->ShowPDBInfo() );
-    connect ( showpdbinfo,SIGNAL ( toggled ( bool ) ),m_world->Visor(), SLOT ( OnShowPDBInfo ( bool ) ) );
+    //showpdbinfo->setChecked ( m_world->Visor()->ShowPDBInfo() );
+    //connect ( showpdbinfo,SIGNAL ( toggled ( bool ) ),m_world->Visor(), SLOT ( OnShowPDBInfo ( bool ) ) );
     viewmenu->addAction ( showpdbinfo );
 
     QAction* showdipole= new QAction ( tr("Show Dipole Moment") ,this );
     showdipole->setCheckable ( true );
-    showdipole->setChecked ( m_world->Visor()->ShowDipole() );
-    connect ( showdipole,SIGNAL ( toggled ( bool ) ),m_world->Visor(), SLOT ( OnShowDipole ( bool ) ) );
+    //showdipole->setChecked ( m_world->Visor()->ShowDipole() );
+    //connect ( showdipole,SIGNAL ( toggled ( bool ) ),m_world->Visor(), SLOT ( OnShowDipole ( bool ) ) );
     viewmenu->addAction ( showdipole );
 
     QAction* showcell= new QAction ( tr("Show Cell") ,this );
     showcell->setCheckable ( true );
-    showcell->setChecked ( m_world->Visor()->ShowCell() );
-    connect ( showcell,SIGNAL ( toggled ( bool ) ),m_world->Visor(), SLOT ( OnShowCell ( bool ) ) );
+    //showcell->setChecked ( m_world->Visor()->ShowCell() );
+    //connect ( showcell,SIGNAL ( toggled ( bool ) ),m_world->Visor(), SLOT ( OnShowCell ( bool ) ) );
     viewmenu->addAction ( showcell );
 
     QAction* showdensity= new QAction ( tr("Show Electronic Density") ,this );
@@ -383,12 +382,12 @@ void KryoMolMainWindow::Init()
 
     QAction* showaxis= new QAction ( tr("Show Coordinate Axis") ,this );
     showaxis->setCheckable ( true );
-    showaxis->setChecked ( m_world->Visor()->ShowAxis() );
-    connect ( showaxis,SIGNAL ( toggled ( bool ) ),m_world->Visor(), SLOT ( OnShowAxis ( bool ) ) );
+    //showaxis->setChecked ( m_world->Visor()->ShowAxis() );
+    //connect ( showaxis,SIGNAL ( toggled ( bool ) ),m_world->Visor(), SLOT ( OnShowAxis ( bool ) ) );
     viewmenu->addAction ( showaxis );
 
     QAction* changebackground = new QAction ( "Change background color",this );
-    connect ( changebackground,SIGNAL ( triggered() ),m_world->Visor(),SLOT ( OnChangeBackground() ) );
+    //connect ( changebackground,SIGNAL ( triggered() ),m_world->Visor(),SLOT ( OnChangeBackground() ) );
     viewmenu->addAction ( changebackground );
     QMenu* rendermenu= viewmenu->addMenu("Rendering Mode");
     QAction* wfaction=rendermenu->addAction ( "Wireframe" );
@@ -523,8 +522,10 @@ void KryoMolMainWindow::InitGaussian()
 
 void KryoMolMainWindow::FinishGaussian()
 {
+
+
     //elimate all tool bars defined before
-    menuBar()->clear();
+    /*menuBar()->clear();
 
 
     for (int i=0;i<m_navigationtoolbar.size();++i)
@@ -846,7 +847,7 @@ void KryoMolMainWindow::FinishGaussian()
         addToolBar(Qt::RightToolBarArea, m_navigationtoolbar.at(i));
         m_navigationtoolbar.at(i)->show();
     }
-    update();
+    update();*/
 }
 
 
@@ -920,7 +921,20 @@ void KryoMolMainWindow::OpenUVFolder(QString foldername)
     QStringList validfiles;
     bool hasdensity=true;
     bool hasorbitals=true;
+
+    if ( m_world )
+    {
+        m_glstack->removeWidget(m_world->Visor());
+    }
+    delete m_world;
     m_world = new kryomol::World(this,World::opticalvisor);
+    qDebug() << "VISOR=" << m_world->Visor() << endl;
+    m_glstack->addWidget( m_world->Visor() );
+    m_glstack->setCurrentWidget(m_world->Visor());
+
+    //m_glstack->update();
+
+
     m_hasdensity=m_hasorbitals=m_hasalphabeta=true;
     for(int i=0;i<flist.size();++i)
     {
@@ -969,7 +983,6 @@ void KryoMolMainWindow::OpenUVFolder(QString foldername)
     }
 
     qDebug() << "nframes=" << m_world->Molecules().back().Frames().size() << endl;
-
     //Should this work ?
     SetBondOrders();
     m_world->Initialize();
@@ -1041,50 +1054,53 @@ void KryoMolMainWindow::OpenIRFolder(QString foldername)
 void KryoMolMainWindow::InitWidgets(kryomol::JobType t,bool hasdensity,bool hasorbitals)
 {
     //Build the stacked widget for holding the different type of jobs
-    delete m_stackedwidget;
-    m_stackedwidget = new QStackedWidget (this);
+    //delete m_stackedwidget;
+    //m_stackedwidget = new QStackedWidget (this);
     //If a orca widget was created delete it
-    delete m_orcawidget;
-    m_orcawidget=nullptr;
+    //delete m_orcawidget;
+    //m_orcawidget=nullptr;
     //Get the initial size
-    m_size = this->size();
+    //m_size = this->size();
 
 
     QJobWidget* q=nullptr;
     if ( t == kryomol::uv )
     {
-        q= new QJobUVWidget(m_file, m_world, this);
+        q= new QJobUVWidget(m_file, m_world, m_uistack);
+
     }
     else if ( t == kryomol::freq )
     {
-        q= new QJobFreqWidget(m_file, m_world, this);
+        q= new QJobFreqWidget(m_file, m_world, m_uistack);
     }
 
-    m_measures = new QMeasureWidget(this);
-    m_mdcontrol = new QMolecularListControl(this);
+    m_uistack->addWidget(q);
+
+    //m_measures = new QMeasureWidget(this);
+    //m_mdcontrol = new QMolecularListControl(this);
     m_mdcontrol->SetWorld(m_world);
     m_mdcontrol->Init();
 
-    connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
-    connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
-    connect(m_world->Visor(),SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
-    connect(m_world->Visor(),SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
-    connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
+    //connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
+    //connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
+    //connect(m_world->Visor(),SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
+    //connect(m_world->Visor(),SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
+    //connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
 
-    connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
-    connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
-    connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
-    connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
-    connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
+    //connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
+    //connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
+    //connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
+    //connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
+    //connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
 
-    q->addWidget(m_measures);
-    q->addWidget(m_mdcontrol);
-    m_measures->hide();
-    m_mdcontrol->hide();
+    //q->addWidget(m_measures);
+    //q->addWidget(m_mdcontrol);
+    //m_measures->hide();
+    //m_mdcontrol->hide();
 
     if ( dynamic_cast<QJobUVWidget*>(q) )
     {
-    QUVWidget* uvwidget = ( static_cast<QUVWidget*> (q->widget(1)));
+    QUVWidget* uvwidget = ( static_cast<QUVWidget*> (q->widget(0)));
     if ( hasdensity )
     {
         m_orbitals = new QOrbitalWidget(this);
@@ -1111,10 +1127,10 @@ void KryoMolMainWindow::InitWidgets(kryomol::JobType t,bool hasdensity,bool haso
             connect(uvwidget,SIGNAL(offshowtransitions(bool)),m_orbitals,SLOT(OffButtons(bool)));
         }
 
-        q->addWidget(m_orbitals);
+        //q->addWidget(m_orbitals);
 
-        m_measures->hide();
-        m_orbitals->hide();
+        //m_measures->hide();
+        //m_orbitals->hide();
     }
     else
     {
@@ -1123,7 +1139,7 @@ void KryoMolMainWindow::InitWidgets(kryomol::JobType t,bool hasdensity,bool haso
     }
     }
 
-    QList<int> sizelist = q->sizes();
+    /*QList<int> sizelist = q->sizes();
 
     for(int i=0;i<sizelist.size();++i)
     {
@@ -1137,19 +1153,19 @@ void KryoMolMainWindow::InitWidgets(kryomol::JobType t,bool hasdensity,bool haso
         }
         else sizelist[i]=0;
     }
-    q->setSizes(sizelist);
+    q->setSizes(sizelist);*/
 
-    m_stackedwidget->addWidget(q);
+    //m_stackedwidget->addWidget(q);
     OnLastFrame();
     //Show the first job and update m_world and m_measures
-    QJobWidget* jq = ( static_cast<QJobWidget*> ( m_stackedwidget->currentWidget()));
-    m_world = jq->GetWorld();
-    m_measures = ( static_cast<QMeasureWidget*> ( jq->findChild<QMeasureWidget*>() ));
-    m_mdcontrol = ( static_cast<QMolecularListControl*> ( jq->findChild<QMolecularListControl*>() ));
-    m_orbitals = ( static_cast<QOrbitalWidget*> ( jq->findChild<QOrbitalWidget*>() ));
-    setCentralWidget(m_stackedwidget);
+    //QJobWidget* jq = ( static_cast<QJobWidget*> ( m_stackedwidget->currentWidget()));
+    //m_world = jq->GetWorld();
+    //m_measures = ( static_cast<QMeasureWidget*> ( jq->findChild<QMeasureWidget*>() ));
+    //m_mdcontrol = ( static_cast<QMolecularListControl*> ( jq->findChild<QMolecularListControl*>() ));
+    //m_orbitals = ( static_cast<QOrbitalWidget*> ( jq->findChild<QOrbitalWidget*>() ));
+    //((setCentralWidget(m_stackedwidget);
     FinishGaussian();
-    this->show();
+    //this->show();
 
 }
 

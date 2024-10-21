@@ -154,6 +154,8 @@ private:
     bool m_hasdensity;
     bool m_hasorbitals;
     bool m_hasalphabeta;
+    QTabWidget* m_tabwidget;
+    QStackedWidget* m_glstack;
 
 };
 
