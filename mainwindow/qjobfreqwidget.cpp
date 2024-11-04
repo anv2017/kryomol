@@ -12,15 +12,18 @@ the Free Software Foundation version 2 of the License.
 #include "qjobfreqwidget.h"
 #include "qjobwidget.h"
 #include "qirwidget.h"
+#include "qfreqwidget.h"
 #include "qplotspectrum.h"
 //#include "qjcdrawing.h"
 
 #include "world.h"
 #include "kryovisor.h"
 
-QJobFreqWidget::QJobFreqWidget(const QString& file, kryomol::World* world, QWidget* parent ) : QJobWidget (world, parent), m_file (file)
+#include <QDockWidget>
+
+QJobFreqWidget::QJobFreqWidget(const QString& file, QWidget* parent ) : QJobWidget (parent), m_file (file)
 {
-    Init();
+       m_world = new kryomol::World(this,kryomol::World::freqvisor);
 }
 
 QJobFreqWidget::~QJobFreqWidget()
@@ -28,109 +31,65 @@ QJobFreqWidget::~QJobFreqWidget()
 }
 
 
-void QJobFreqWidget::Init()
+void QJobFreqWidget::InitWidgets()
 {
-    kryomol::World* world = GetWorld();
+    this->setCentralWidget(m_world->Visor());
+
+
 
     //Create the FreqWidget
-    m_freqwidget = new QFreqWidget (world,m_file, this);
+    QDockWidget* fdock = new QDockWidget(this);
+    fdock->setAllowedAreas(Qt::RightDockWidgetArea);
+    m_freqwidget = new QFreqWidget (this->World(),m_file, this);
+    fdock->setWidget(m_freqwidget);
+    for(auto w : m_dockwidgets)
+    {
+        this->tabifyDockWidget(fdock,w);
+    }
+
 
     connect ( m_freqwidget,SIGNAL ( Type ( QPlotSpectrum::SpectrumType ) ),this,SLOT ( OnIRTypeChanged ( QPlotSpectrum::SpectrumType ) ) );
 
     //Initialize the visor and actions: spectrum,...
-    connect ( m_freqwidget,SIGNAL ( mode ( int,int ) ),world->Visor(),SLOT ( SetMode ( int,int ) ) );
-    connect ( m_freqwidget,SIGNAL ( distort ( int ) ),world->Visor(),SLOT ( OnDistortion ( int ) ) );
-    connect ( m_freqwidget,SIGNAL ( reset() ),world->Visor(),SLOT ( OnStopAnimation() ) );
+    connect ( m_freqwidget,SIGNAL ( mode ( int,int ) ),World()->Visor(),SLOT ( SetMode ( int,int ) ) );
+    connect ( m_freqwidget,SIGNAL ( distort ( int ) ),World()->Visor(),SLOT ( OnDistortion ( int ) ) );
+    connect ( m_freqwidget,SIGNAL ( reset() ),World()->Visor(),SLOT ( OnStopAnimation() ) );
     connect ( m_freqwidget,SIGNAL ( showspectrum ( bool ) ),this,SLOT ( OnShowSpectrum ( bool ) ) );
-    world->Visor()->Initialize();
+    World()->Visor()->Initialize();
 
     m_freqwidget->InitFrequencies();
     m_freqwidget->InitTable(0);
 
-    //Add the visor and the FreqWidget to the splitter
-    this->addWidget(world->Visor());
-    this->addWidget(m_freqwidget);
-
-    SetWorld(world);
 }
 
 
 void QJobFreqWidget::OnShowSpectrum ( bool bshow )
 {
-  //if already exist a irwidget object simply show it, otherwise create it
-  if ( bshow )
-  {
-    QList<QIRWidget*> childlist= this->findChildren<QIRWidget*>(); ;
-    if ( !childlist.empty() )
-    {
 
-      for ( QList<QIRWidget*>::iterator ch=childlist.begin();ch!=childlist.end();++ch)
-         (*ch)->show();
-      return;
+    if ( m_irwidget )
+    {
+        bshow ?  m_irwidget->show() : m_irwidget->hide();
+        return;
     }
 
+    if ( !bshow ) return;
 
-    //add a vertical splitter to the current splitter
-    QSplitter* vsplit =new QSplitter ( Qt::Vertical, this );
-
-    //now get a pointer to the first element of currennt split
-    kryomol::KryoVisor* w= this->findChild<kryomol::KryoVisor*>();
-
-
-    //and now reparent this widget which should be the GLVisor
-    w->setParent(vsplit,0);
-    w->move(QPoint(0,0));
-
-    w->setSizePolicy ( QSizePolicy::Expanding,QSizePolicy::Expanding );
-    vsplit->addWidget(w);
-    //add the Spectrum drawing widget
-    QIRWidget* ir= new QIRWidget ( this->GetWorld(),vsplit );
-    vsplit->addWidget(ir);
-    vsplit->setStretchFactor ( vsplit->indexOf(ir), 0);
-
-    QList<QFreqWidget*> chw= this->findChildren<QFreqWidget*>();
-    QFreqWidget* fw= chw.first();
-
+    //Create the IRWidget
+    QDockWidget* irdock = new QDockWidget(this);
+    QIRWidget* ir= new QIRWidget ( this->World(),irdock );
+    irdock->setWidget(ir);
+    irdock->setAllowedAreas(Qt::BottomDockWidgetArea);
 
     QPlotSpectrum* jc= ir->GetSpectrum();
-    connect ( fw,SIGNAL ( data ( fidarray*,float,float, float ) ),jc,SLOT ( SetData ( fidarray*,float,float,float ) ) );
-    jc->SetData ( &fw->GetData(),&fw->GetTotalData(),fw->Max(),fw->Min(), fw->Shift(),QPlotSpectrum::IR);
+    connect ( m_freqwidget,SIGNAL ( data ( fidarray*,float,float, float ) ),jc,SLOT ( SetData ( fidarray*,float,float,float ) ) );
+    jc->SetData ( &m_freqwidget->GetData(),&m_freqwidget->GetTotalData(),m_freqwidget->Max(),m_freqwidget->Min(), m_freqwidget->Shift(),QPlotSpectrum::IR);
 
-    //Change the size of the widgets in the splitter
-    QList<int> list = vsplit->sizes();
-    list[0]=fw->size().height()/2;
-    list[1]=fw->size().height()/2;
-    vsplit->setSizes(list);
 
-    //and finally move the vertical splitter to the first position
-    this->insertWidget(0, vsplit);
-
-    list = this->sizes();
-    list[0]=this->size().width()-this->size().width()/4;
-    list[1]=this->size().width()/4;
-    this->setSizes(list);
-
-  }
-  else
-  {
-    //find a QJCDrawing and hide it
-    QList<QIRWidget*> childlist=this->findChildren<QIRWidget*>();
-
-    for ( QList<QIRWidget*>::iterator ch=childlist.begin();ch!=childlist.end();++ch)
-      (*ch)->hide();
-  }
 }
 
 
 void QJobFreqWidget::OnIRTypeChanged ( QPlotSpectrum::SpectrumType t )
 {
-
-#warning should not be QUVWidget?
-  QList<QIRWidget*> childlist= this->findChildren<QIRWidget*>();
-  if ( childlist.empty() ) return;
-  QIRWidget* w=childlist.first();
-  if ( ! w ) return;
-
-  w->GetSpectrum()->SetType(t);
+  m_irwidget->GetSpectrum()->SetType(t);
 }
 

@@ -15,7 +15,6 @@ the Free Software Foundation version 2 of the License.
 #include <QWidget>
 
 #include "qjobwidget.h"
-#include "qfreqwidget.h"
 #include "qplotspectrum.h"
 
 namespace kryomol
@@ -24,17 +23,18 @@ class World;
 
 };
 
+class QIRWidget;
+class QFreqWidget;
 
 class QJobFreqWidget : public QJobWidget
 {
     Q_OBJECT
 
 public:
-    QJobFreqWidget(const QString& file, kryomol::World* world, QWidget *parent = 0);
+    QJobFreqWidget(const QString& file, QWidget *parent = 0);
     ~QJobFreqWidget();
 
-private:
-    void Init();
+    void InitWidgets();
 
 private slots:
     void OnShowSpectrum (bool bshow);
@@ -43,6 +43,7 @@ private slots:
 private:
     QString m_file;
     QFreqWidget* m_freqwidget;
+    QIRWidget* m_irwidget;
 
 
 };

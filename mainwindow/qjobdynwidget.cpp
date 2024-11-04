@@ -5,37 +5,50 @@
 #include "qconvwidget.h"
 #include "kryovisor.h"
 
-QJobDynWidget::QJobDynWidget( kryomol::World* world, QWidget *parent) : QJobWidget(world,parent)
+#include <QDockWidget>
+
+QJobDynWidget::QJobDynWidget(QWidget *parent) : QJobWidget(parent)
 {
-  Init();
+    m_world = new kryomol::World(kryomol::World::glvisor);
 }
 
-void QJobDynWidget::Init()
+void QJobDynWidget::InitWidgets()
 {
-    kryomol::World* world = GetWorld();
+    InitCommonWidgets();
+    this->setCentralWidget(m_world->Visor());
 
-    m_dynwidget = new QConvWidget (this,false,false);
+    QDockWidget* dyndock = new QDockWidget(this);
+    m_dynwidget = new QConvWidget (dyndock,false,false);
+    dyndock->setWidget(m_dynwidget);
+    dyndock->setAllowedAreas(Qt::RightDockWidgetArea);
+
+    for(auto w : m_dockwidgets)
+    {
+        this->tabifyDockWidget(dyndock,w);
+    }
+
+    m_dockwidgets.insert(0,dyndock);
 
     //delete last frame if we do not have potential energy
-    if ( ! world->Molecules().back().Frames().back().PotentialEnergy() )
+    if ( !World()->Molecules().back().Frames().back().PotentialEnergy() )
     {
-       world->Molecules().back().Frames().pop_back();
+        World()->Molecules().back().Frames().pop_back();
     }
 
 
-    m_dynwidget->SetNData ( world->Molecules().back().Frames().size() );
+    m_dynwidget->SetNData ( World()->Molecules().back().Frames().size() );
     double* energies=m_dynwidget->GetEnergies();
-    m_dynwidget->SetEnergyLevel ( world->Molecules().back().GetEnergyLevel().c_str() );
+    m_dynwidget->SetEnergyLevel ( World()->Molecules().back().GetEnergyLevel().c_str() );
 
     if ( energies )
     {
         std::vector<kryomol::Frame>::iterator mt;
-        mt=world->Molecules().back().Frames().begin();
+        mt=World()->Molecules().back().Frames().begin();
         m_dynwidget->SetThreshold ( mt->GetThreshold() );
 
         int i=0;
-        mt=world->Molecules().back().Frames().begin();
-        for ( i=0;mt!=world->Molecules().back().Frames().end();mt++,i++ )
+        mt=World()->Molecules().back().Frames().begin();
+        for ( i=0;mt!=World()->Molecules().back().Frames().end();mt++,i++ )
         {
             energies[i]=mt->GetEnergy();
         }
@@ -43,16 +56,10 @@ void QJobDynWidget::Init()
     }
 
     //Initialize the visor and actions of the widget
-    world->Visor()->Initialize();
+    World()->Visor()->Initialize();
     //(static_cast<kryomol::KryoVisorOpt*> ( world->Visor() ) )->setForceScale(sqrt(m_convwidget->GetForceScale()));
     m_dynwidget->SetupCurves();
-    connect ( m_dynwidget,SIGNAL ( selectedPoint ( size_t) ),world,SLOT ( SelectFrame(size_t ) ) );
-    connect ( world,SIGNAL ( currentFrame(size_t ) ),m_dynwidget,SLOT ( OnSelectedPoint ( size_t ) ) );
-    m_dynwidget->OnSelectedPoint ( world->CurrentMolecule()->CurrentFrameIndex());
-
-    //Add the visor and the ConvWidget to the splitter
-    this->addWidget(world->Visor());
-    this->addWidget(m_dynwidget);
-
-    SetWorld(world);
+    connect ( m_dynwidget,SIGNAL ( selectedPoint ( size_t) ),World(),SLOT ( SelectFrame(size_t ) ) );
+    connect ( World(),SIGNAL ( currentFrame(size_t ) ),m_dynwidget,SLOT ( OnSelectedPoint ( size_t ) ) );
+    m_dynwidget->OnSelectedPoint ( World()->CurrentMolecule()->CurrentFrameIndex());
 }

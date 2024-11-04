@@ -30,8 +30,9 @@ class QJobSpWidget : public QJobWidget
     Q_OBJECT
 
 public:
-    QJobSpWidget(kryomol::World* world, QWidget *parent = 0);
+    QJobSpWidget(QWidget *parent = 0);
     ~QJobSpWidget();
+    void InitWidgets();
 
 private:
     void Init();

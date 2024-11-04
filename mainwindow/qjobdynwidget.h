@@ -8,10 +8,10 @@ class QJobDynWidget : public QJobWidget
 {
     Q_OBJECT
 public:
-    explicit QJobDynWidget(kryomol::World* world, QWidget *parent = nullptr);
+    explicit QJobDynWidget(QWidget *parent = nullptr);
+    void InitWidgets();
 
-private:
-    void Init();
+
 private:
     QConvWidget* m_dynwidget;
 };

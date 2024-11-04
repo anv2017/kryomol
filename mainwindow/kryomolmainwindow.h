@@ -133,8 +133,6 @@ private:
     QList<QToolBar*> m_navigationtoolbar;
     QString m_file;
     kryomol::KryoMolApplication* m_app;
-    /** pointer to the simulation world*/
-    kryomol::World* m_world;
     std::vector<QAction*> m_recentfileactions;
     QActionGroup* m_gmodegroup;
     QMenu* m_analysismenu;
@@ -155,7 +153,6 @@ private:
     bool m_hasorbitals;
     bool m_hasalphabeta;
     QTabWidget* m_tabwidget;
-    QStackedWidget* m_glstack;
 
 };
 

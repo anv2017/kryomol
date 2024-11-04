@@ -20,18 +20,20 @@ the Free Software Foundation version 2 of the License.
 
 namespace kryomol
 {
-    class World;
+class World;
 
 };
 
+class QIRWidget;
 class QJobUVWidget : public QJobWidget
 {
 
-     Q_OBJECT
+    Q_OBJECT
 
 public:
-    QJobUVWidget(const QString& file, kryomol::World* world, QWidget *parent = 0);
+    QJobUVWidget(const QString& file, QWidget *parent = 0);
     ~QJobUVWidget();
+    void InitWidgets();
 
 private:
     void Init();
@@ -45,6 +47,7 @@ private:
     bool m_beta;
     QString m_file;
     QUVWidget* m_uvwidget;
+    QIRWidget* m_irwidget;
 
 };
 

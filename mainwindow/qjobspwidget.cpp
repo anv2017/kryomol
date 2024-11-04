@@ -13,9 +13,9 @@ the Free Software Foundation version 2 of the License.
 #include "world.h"
 #include "kryovisor.h"
 
-QJobSpWidget::QJobSpWidget(kryomol::World* world, QWidget* parent ) : QJobWidget (world, parent)
+QJobSpWidget::QJobSpWidget(QWidget* parent ) : QJobWidget (parent)
 {
-    Init();
+    m_world = new kryomol::World(this,kryomol::World::glvisor);
 }
 
 QJobSpWidget::~QJobSpWidget()
@@ -23,16 +23,17 @@ QJobSpWidget::~QJobSpWidget()
 }
 
 
-void QJobSpWidget::Init()
+void QJobSpWidget::InitWidgets()
 {
-    kryomol::World* world = GetWorld();
+    World()->Visor()->Initialize();
+    InitCommonWidgets();
 
-    world->Visor()->Initialize();
+    for(auto it=m_dockwidgets.begin()+1;it!=m_dockwidgets.end();++it)
+    {
+        this->tabifyDockWidget(m_dockwidgets.front(),*it);
+    }
 
-    //Add the visor and the FreqWidget to the splitter
-    this->addWidget(world->Visor());
 
-    SetWorld(world);
 }
 
 

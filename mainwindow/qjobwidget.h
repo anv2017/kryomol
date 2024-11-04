@@ -14,7 +14,7 @@ the Free Software Foundation version 2 of the License.
 
 #include <QWidget>
 #include <QSplitter>
-
+#include <QMainWindow>
 
 namespace kryomol
 {
@@ -24,23 +24,30 @@ class World;
 
 
 class QDockWidget;
+class QTabWidget;
 
-class QJobWidget : public Q
+class QJobWidget : public QMainWindow
 {
 
     Q_OBJECT
 
 public:
-    QJobWidget(kryomol::World* world, QWidget *parent = 0);
+    QJobWidget(QWidget *parent = 0);
     ~QJobWidget();
-    virtual BuilldVisor();
-    kryomol::World* GetWorld() {return m_world;}
-    void SetWorld(kryomol::World* world) {m_world = world;}
+    //virtual BuilldVisor();
+    kryomol::World* World() {return m_world;}
+    //void SetWorld(kryomol::World* world) {m_world = world;}
     QList<QDockWidget*> DockWidgets() const { return m_dockwidgets; }
+    virtual void InitWidgets() {}
+protected:
+    void InitCommonWidgets();
+    virtual void showEvent(QShowEvent *event);
+    virtual void hideEvent(QHideEvent *event);
 
-private:
+protected:
     kryomol::World* m_world;
-    QList<QWidget*> m_dockwidgets;
+    QList<QDockWidget*> m_dockwidgets;
+    QTabWidget* m_tabwidget;
 
 };
 

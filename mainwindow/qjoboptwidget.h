@@ -29,8 +29,9 @@ class QJobOptWidget : public QJobWidget
     Q_OBJECT
 
 public:
-    QJobOptWidget(kryomol::World* world, QWidget* parent = 0);
+    QJobOptWidget(QWidget* parent = 0);
     ~QJobOptWidget();
+    void InitWidgets();
 
 private:
     void Init();
