@@ -72,11 +72,15 @@ void QJobWidget::InitCommonWidgets()
         w->setAllowedAreas(Qt::RightDockWidgetArea);
         this->addDockWidget(Qt::RightDockWidgetArea,w);
     }*/
+    QMolecularListControl* conf= new QMolecularListControl(m_tabwidget);
+    conf->SetWorld(m_world);
+    conf->Init();
+    m_tabwidget->addTab(conf,"Conformers");
 
     m_tabwidget->addTab(new QPDBControl(m_tabwidget),"PDB Info");
     m_tabwidget->addTab(new QMeasureWidget(m_tabwidget),"Measure");
     m_tabwidget->addTab(new QOrbitalWidget(m_tabwidget),"Density");
-    m_tabwidget->addTab(new QMolecularListControl(m_tabwidget),"Conformers");
+   // m_tabwidget->addTab(new QMolecularListControl(m_tabwidget),"Conformers");
 
 
 }

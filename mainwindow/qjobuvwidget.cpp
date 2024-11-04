@@ -37,9 +37,11 @@ QJobUVWidget::~QJobUVWidget()
 
 void QJobUVWidget::InitWidgets()
 {
+    this->World()->Initialize();
+    this->setCentralWidget(m_world->Visor());
     InitCommonWidgets();
 
-    this->setCentralWidget(m_world->Visor());
+
 
     QDockWidget* uvdock = new QDockWidget(this);
     uvdock->setAllowedAreas(Qt::RightDockWidgetArea);
@@ -68,7 +70,7 @@ void QJobUVWidget::InitWidgets()
     connect ( m_uvwidget,SIGNAL( showvelocitydipole(bool)),World()->Visor(),SLOT(OnShowVelocityDipole(bool )));
     connect ( m_uvwidget,SIGNAL( setactivetransition(int)),World()->Visor(),SLOT(OnSetActiveTransition(int )));
 
-    this->World()->Visor()->Initialize();
+    //this->World()->Visor()->Initialize();
     //Get all the lines
     std::vector< std::vector<Spectralline> > linesets;
     std::vector< std::vector< std::vector< kryomol::TransitionChange> > > tcsets;
