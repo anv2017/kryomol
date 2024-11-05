@@ -40,15 +40,17 @@ void QMolecularTreeWidget::Init()
     labels << "#";
     labels << "color";
     const std::vector<double>& populations=m_world->CurrentMolecule()->Populations();
+
+    if ( m_world->CurrentMolecule()->Frames().back().PotentialEnergy() )
+    {
+        labels << "Energies (a.u.)";
+        ncolumns++;
+    }
+
     if ( m_world->CurrentMolecule()->Populations().size() > 1 )
     {
         ncolumns++;
         labels << "Populations (%)";
-    }
-    if ( m_world->CurrentMolecule()->Frames().back().PotentialEnergy() )
-    {
-        labels << "Energies (kcal/mol)";
-        ncolumns++;
     }
     setColumnCount(ncolumns);
 
@@ -60,18 +62,26 @@ void QMolecularTreeWidget::Init()
         //m_visor->OnSelectPoint ( i-1,false );
         QString frame,energy, venergy, kenergy,spop;
         frame.sprintf ( "%d",static_cast<int> ( i+1 ) );
-        spop.sprintf("%.2f",populations.at(i)*100);
+
         double ve;
         const Frame& mf=m_world->CurrentMolecule()->Frames().at(i);
         QStringList sl;
-        sl << frame <<  spop;
+        sl << frame;
+        sl <<  QString();
         if ( mf.PotentialEnergy() )
         {
             ve=mf.PotentialEnergy().Value();;
-            venergy.sprintf ( "%.1f",ve );
+            venergy.sprintf ( "%.5f",ve );
             sl << venergy;
 
         }
+
+        if (!populations.empty() )
+        {
+            spop.sprintf("%.2f",populations.at(i)*100);
+        }
+
+        sl << spop;
 
         QNumTreeWidgetItem* mitem= new QNumTreeWidgetItem ( this, sl );
         float h,s,l;
