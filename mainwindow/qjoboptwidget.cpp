@@ -32,22 +32,24 @@ QJobOptWidget::~QJobOptWidget()
 
 void QJobOptWidget::InitWidgets()
 {
-
+    World()->Visor()->Initialize();
 
     this->setCentralWidget(m_world->Visor());
     InitCommonWidgets();
 
     QDockWidget* cdock = new QDockWidget(this);
-    m_convwidget = new QConvWidget (cdock);
-    cdock->setWidget(m_convwidget);
+    m_convwidget = new QConvWidget (m_tabwidget);
+    m_tabwidget->addTab(m_convwidget,"Opt");
+    cdock->setWidget(m_tabwidget);
     cdock->setAllowedAreas(Qt::RightDockWidgetArea);
+    this->addDockWidget(Qt::RightDockWidgetArea,cdock);
 
-    for(auto w : m_dockwidgets)
-    {
-        this->tabifyDockWidget(cdock,w);
-    }
+    // for(auto w : m_dockwidgets)
+    // {
+    //     this->tabifyDockWidget(cdock,w);
+    // }
 
-    m_dockwidgets.insert(0,cdock);
+    // m_dockwidgets.insert(0,cdock);
 
 
 
@@ -95,7 +97,6 @@ void QJobOptWidget::InitWidgets()
     }
 
     //Initialize the visor and actions of the widget
-    World()->Visor()->Initialize();
     (static_cast<kryomol::KryoVisorOpt*> ( World()->Visor() ) )->setForceScale(sqrt(m_convwidget->GetForceScale()));
     m_convwidget->SetupCurves();
     connect ( m_convwidget,SIGNAL ( selectedPoint ( size_t) ),World(),SLOT ( SelectFrame(size_t ) ) );
