@@ -41,8 +41,6 @@ void Thermostat::SetPopulations(Molecule& molecule) const
 void Thermostat::SetBoltzmannPopulations(Molecule& molecule) const
 
 {
-
-
   double k=1.98588e-3; //kcal/mol
 
   std::vector<double> pop(molecule.Frames().size());

@@ -850,10 +850,100 @@ void KryoMolMainWindow::OnLoadIRFolderAction()
 
 }
 
-void KryoMolMainWindow::OnOpenFile(QString filename)
+void KryoMolMainWindow::OnOpenFile(QString fname)
 {
-    m_file=filename;
-    OpenFile();
+    // QDir dir(foldername);
+    // QFileInfoList flist=dir.entryInfoList(QDir::Files);
+    // //This should be a list of files containing the ecd computations
+    // QStringList validfiles;
+    // bool hasdensity=true;
+    // bool hasorbitals=true;
+
+    QTabWidget* ctab = new QTabWidget(m_tabwidget);
+    m_tabwidget->addTab(ctab,fname);
+    //kryomol::World* world = juv->World();
+
+    //m_glstack->update();
+
+
+    m_hasdensity=m_hasorbitals=m_hasalphabeta=true;
+
+   // qDebug() << "file=" << f << endl;
+#ifdef __MINGW32__
+    kryomol::ParserFactory factory(std::filesystem::u8path(fname.toUtf8().data()));
+#else
+    kryomol::ParserFactory factory(fname.toStdString().c_str());
+#endif
+
+    kryomol::Parser* qparser=factory.BuildParser();
+
+    if ( !factory.existDensity() )
+    {
+        m_hasdensity=false;
+    }
+    if ( !factory.existOrbitals() )
+    {
+        m_hasorbitals=false;
+    }
+
+    if ( !factory.existAlphaBeta() )
+    {
+        m_hasalphabeta=false;
+    }
+
+
+
+    for(const auto& j : qparser->Jobs() )
+    {
+        if ( j.type == kryomol::opt )
+        {
+            QJobOptWidget* w = new QJobOptWidget(m_tabwidget);
+            qparser->SetMolecules( &w->World()->Molecules() );
+            try {
+                qparser->Parse(j.pos);
+            }
+            catch(...)
+            {
+                delete w;
+                return;
+            }
+
+            ctab->addTab(w,"Opt");
+
+            SetBondOrders();
+            w->InitWidgets();
+
+        }
+
+        if ( j.type == kryomol::freq )
+        {
+            QJobFreqWidget* w = new QJobFreqWidget(fname,m_tabwidget);
+            qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
+            qparser->SetMolecules( &w->World()->Molecules() );
+            qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
+            try {
+                qparser->Parse(j.pos);
+                qparser->ParseFrequencies(j.pos);
+                qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
+                qDebug() << "nframes=" << w->World()->Molecules().back().Frames().size() << endl;
+            }
+            catch(...)
+            {
+                delete w;
+                return;
+            }
+            ctab->addTab(w,"Freq");
+            SetBondOrders();
+            w->InitWidgets();
+
+        }
+    }
+    delete qparser;
+
+    //Should this work ?
+    SetBondOrders();
+    //juv->InitWidgets();
+    //this->InitWidgets(kryomol::uv,m_hasdensity,m_hasorbitals);
 }
 
 void KryoMolMainWindow::OpenFile()
@@ -1187,68 +1277,68 @@ void KryoMolMainWindow::OnOpenRecentFile()
 
 void KryoMolMainWindow::OpenGenericFile()
 {
-//     kryomol::KryoMolApplication::SetFile ( m_file );
+    //     kryomol::KryoMolApplication::SetFile ( m_file );
 
-// #ifdef __MINGW32__
-//     kryomol::ParserFactory factory(std::filesystem::u8path(m_file.toUtf8().data()));
-// #else
-//     kryomol::ParserFactory factory(m_file.toStdString().c_str());
-// #endif
-
-
-//     m_qparser=factory.BuildParser();
-
-//     if ( m_qparser == nullptr )
-//     {
-//         QMessageBox k;
-//         k.setText ( "Could not determine file type" );
-//         k.exec();
-//         return;
-//     }
-
-//     try
-//     {
-//         Parse();
-
-//     }
-//     catch ( ... )
-//     {
-//         //first of all clear the world, otherwise the rendering egine will crash on Apply Transformation
-//         m_world->Clear();
-//         QMessageBox::warning( this,"","Error during parsing" );
-//         return;
-//     }
-
-//     SetBondOrders();
-//     m_world->Initialize();
+    // #ifdef __MINGW32__
+    //     kryomol::ParserFactory factory(std::filesystem::u8path(m_file.toUtf8().data()));
+    // #else
+    //     kryomol::ParserFactory factory(m_file.toStdString().c_str());
+    // #endif
 
 
-//     if (m_hasdensity)
-//     {
-//         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
+    //     m_qparser=factory.BuildParser();
 
-//         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+    //     if ( m_qparser == nullptr )
+    //     {
+    //         QMessageBox k;
+    //         k.setText ( "Could not determine file type" );
+    //         k.exec();
+    //         return;
+    //     }
 
-//         if (m_hasorbitals)
-//         {
-//             m_orbitals->SetBeta(m_hasalphabeta);
-//             m_orbitals->ListOrbitals();
-//         }
-//     }
+    //     try
+    //     {
+    //         Parse();
 
-//     QString apptitle = "KryoMol";
-//     setWindowTitle ( apptitle + " file://"+m_file );
-//     UpdateRecentFiles();
+    //     }
+    //     catch ( ... )
+    //     {
+    //         //first of all clear the world, otherwise the rendering egine will crash on Apply Transformation
+    //         m_world->Clear();
+    //         QMessageBox::warning( this,"","Error during parsing" );
+    //         return;
+    //     }
 
-//     m_mdcontrol->SetWorld ( m_world );
-//     m_pdbcontrol->SetWorld( m_world );
-//     m_mdcontrol->Init();
-//     m_pdbcontrol->Init();
+    //     SetBondOrders();
+    //     m_world->Initialize();
 
-//     //Why we have to force update ?
-//     this->show();
+
+    //     if (m_hasdensity)
+    //     {
+    //         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
+
+    //         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //         if (m_hasorbitals)
+    //         {
+    //             m_orbitals->SetBeta(m_hasalphabeta);
+    //             m_orbitals->ListOrbitals();
+    //         }
+    //     }
+
+    //     QString apptitle = "KryoMol";
+    //     setWindowTitle ( apptitle + " file://"+m_file );
+    //     UpdateRecentFiles();
+
+    //     m_mdcontrol->SetWorld ( m_world );
+    //     m_pdbcontrol->SetWorld( m_world );
+    //     m_mdcontrol->Init();
+    //     m_pdbcontrol->Init();
+
+    //     //Why we have to force update ?
+    //     this->show();
 
 }
 
@@ -1256,495 +1346,495 @@ void KryoMolMainWindow::OpenGenericFile()
 void KryoMolMainWindow::OpenGaussianFile()
 {
 
-//     kryomol::KryoMolApplication::SetFile ( m_file );
-// #ifdef __MINGW32__
-//     kryomol::ParserFactory factory(std::filesystem::u8path(m_file.toUtf8().data()));
-// #else
-//     kryomol::ParserFactory factory(m_file.toStdString().c_str());
-// #endif
-
-//     m_qparser=factory.BuildParser();
-
-//     if ( m_qparser == nullptr )
-//     {
-//         QMessageBox k;
-//         k.setText ( "Could not determine file type" );
-//         k.exec();
-//         return;
-//     }
-
-//     m_hasdensity=factory.existDensity();
-//     m_hasorbitals=factory.existOrbitals();
-//     m_hasalphabeta=factory.existAlphaBeta();
-
-//     //Looking for an Optimization Job:
-
-//     QString apptitle = "KryoMol";
-//     setWindowTitle ( apptitle + " file://"+m_file );
-
-//     std::vector<kryomol::JobHeader> jobs=m_qparser->Jobs();
-
-//     if ( jobs.empty() ) return;
-
-//     for ( std::vector<kryomol::JobHeader>::iterator it=jobs.begin();it!=jobs.end();++it )
-//     {
-//         if (it->type == kryomol::singlepoint)
-//         {
-//             m_world = new kryomol::World (this,kryomol::World::kryovisor);
-//             m_qparser->SetMolecules(&m_world->Molecules() );
-//             try
-//             {
-//                 m_qparser->Parse(it->pos);
-//             }
-//             catch(...)
-//             {
-//                 std::cerr << "error opening gaussian file";
-//                 delete m_world;
-//                 return;
-//             }
-//             m_world->Initialize();
-//             SetBondOrders();
-//             QJobSpWidget* q = new QJobSpWidget(m_world,this);
-//             m_measures = new QMeasureWidget(this);
-//             m_orbitals = new QOrbitalWidget(this);
-
-//             connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
-//             connect(m_world->Visor(), SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
-//             connect(m_world->Visor(), SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
-//             connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
-//             connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
-//             connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
-//             connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
-//             connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
-//             connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
-
-//             if ( m_world->Molecules().back().Frames().size() == 1)
-//             {
-//                 if ( m_hasdensity )
-//                 {
-//                     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
-
-//                     connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                     connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-
-//                     if ( m_hasorbitals )
-//                     {
-//                         m_orbitals->SetBeta(m_hasalphabeta);
-//                         m_orbitals->ListOrbitals();
-//                     }
-
-//                 }
-//             }
-//             else
-//             {
-//                 if ( m_hasdensity && !m_hasorbitals )
-//                 {
-//                     if (!m_world->Molecules().back().CurrentFrame().ElectronicDensityData().Density().Empty())
-//                     {
-//                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
-
-//                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-//                     }
-//                     else
-//                     {
-//                         m_orbitals->HideAllButtons();
-//                     }
-
-//                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateDensities ( size_t )) );
-
-//                 }
-
-//                 if ( m_hasorbitals )
-//                 {
-//                     if (!m_world->Molecules().back().CurrentFrame().OrbitalsData().BasisCenters().empty())
-//                     {
-//                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
-
-//                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-
-//                         m_orbitals->SetBeta(m_hasalphabeta);
-//                         m_orbitals->ListOrbitals();
-//                     }
-//                     else
-//                     {
-//                         m_orbitals->HideAllButtons();
-//                     }
-//                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateOrbitals ( size_t )) );
-//                 }
-
-//             }
-
-
-//             q->addWidget(m_measures);
-//             q->addWidget(m_orbitals);
-//             QList<int> list = q->sizes();
-//             list[0]=m_size.width()-m_size.width()/4;
-//             list[1]=m_size.width()/4;
-
-//             q->setSizes(list);
-//             m_measures->hide();
-//             m_orbitals->hide();
-//             m_stackedwidget->addWidget(q);
-//         }
-
-//         if (it->type == kryomol::opt || it->type == kryomol::dyn )
-//         {
-//             m_world = new World (this,World::optvisor);
-//             m_qparser->SetMolecules(&m_world->Molecules());
-//             try
-//             {
-//                 m_qparser->Parse(it->pos);
-//             }
-//             catch(...)
-//             {
-//                 std::cerr << "error opening gaussian file";
-//                 delete m_world;
-//                 return;
-//             }
-//             m_world->Initialize();
-//             SetBondOrders();
-//             QJobWidget* q;
-//             if ( it->type == kryomol::opt )
-//                 q = new QJobOptWidget(m_world,this);
-//             else q = new QJobDynWidget(m_world,this);
-
-//             m_measures = new QMeasureWidget(this);
-//             m_orbitals = new QOrbitalWidget(this);
-
-//             connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
-//             connect(m_world->Visor(), SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
-//             connect(m_world->Visor(), SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
-//             connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
-//             connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
-//             connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
-//             connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
-//             connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
-//             connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
-
-//             if ( m_world->Molecules().back().Frames().size() == 1)
-//             {
-//                 if ( m_hasdensity )
-//                 {
-//                     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
-
-//                     connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                     connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-
-//                     if ( m_hasorbitals )
-//                     {
-//                         m_orbitals->SetBeta(m_hasalphabeta);
-//                         m_orbitals->ListOrbitals();
-//                     }
-
-//                 }
-//             }
-//             else
-//             {
-//                 if ( m_hasdensity && !m_hasorbitals )
-//                 {
-//                     if (!m_world->Molecules().back().CurrentFrame().ElectronicDensityData().Density().Empty())
-//                     {
-//                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
-
-//                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-//                     }
-//                     else
-//                     {
-//                         m_orbitals->HideAllButtons();
-//                     }
-
-//                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateDensities ( size_t )) );
-
-//                 }
-
-//                 if (m_hasorbitals)
-//                 {
-//                     if (!m_world->Molecules().back().CurrentFrame().OrbitalsData().BasisCenters().empty())
-//                     {
-//                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
-
-//                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-
-//                         m_orbitals->SetBeta(m_hasalphabeta);
-//                         m_orbitals->ListOrbitals();
-//                     }
-//                     else
-//                     {
-//                         m_orbitals->HideAllButtons();
-//                     }
-//                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateOrbitals ( size_t )) );
-//                 }
-
-//             }
-
-
-//             /*if (existDensity())
-//                {
-//                    m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
-
-//                    connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                    connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                    connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-
-//                    if (existOrbitals())
-//                    {
-//                        m_orbitals->SetBeta(existAlphaBeta());
-//                        m_orbitals->ListOrbitals();
-//                    }
-//                }*/
-
-//             q->addWidget(m_measures);
-//             m_measures->hide();
-//             q->addWidget(m_orbitals);
-//             m_orbitals->hide();
-//             QList<int> list = q->sizes();
-//             if ( it->type == kryomol::opt )
-//             {
-//                 list[0]=m_size.width()-m_size.width()/4;
-//                 list[1]=m_size.width()/4;
-//                 list[2]=0;
-//                 list[3]=0;
-//             }
-//             else { //dyn
-//                 list[0]=m_size.width()-m_size.width()/4;
-//                 list[1]=m_size.width()/4;
-//             }
-//             q->setSizes(list);
-//             m_stackedwidget->addWidget(q);
-//             OnLastFrame();
-
-//         }
-
-//         if (it->type == kryomol::freq)
-//         {
-//             m_world = new kryomol::World(this,World::freqvisor);
-//             m_qparser->SetMolecules(&m_world->Molecules());
-//             try
-//             {
-//                 m_qparser->Parse(it->pos);
-//             }
-//             catch( ...)
-//             {
-//                 std::cerr << "Error parsing gaussian file" << std::endl;
-//                 delete m_world;
-//                 return;
-//             }
-
-//             try
-//             {
-//                 m_qparser->ParseFrequencies ( it->pos );
-//             }
-//             catch(...)
-//             {
-//                 std::cerr << "Error parsing frequencies" << std::endl;
-//                 return;
-
-//             }
-//             m_world->Initialize();
-//             SetBondOrders();
-
-//             QJobFreqWidget* q = new QJobFreqWidget (m_file, m_world, this);
-//             m_measures = new QMeasureWidget(this);
-//             m_orbitals = new QOrbitalWidget(this);
-
-//             connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
-//             connect(m_world->Visor(),SIGNAL(angle(QString&)),m_measures,SLOT(OnWriteAngle(QString&)));
-//             connect(m_world->Visor(),SIGNAL(dihedral(QString&)),m_measures,SLOT(OnWriteDihedral(QString&)));
-//             connect(m_world,SIGNAL(currentFrame(size_t)),this,SLOT(OnUpdateMeasures(size_t)));
-
-//             connect(m_measures,SIGNAL(clearAll()),m_world->Visor(),SLOT(OnClearMeasures()));
-//             connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
-//             connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
-//             connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
-//             connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
-
-//             if ( m_world->Molecules().back().Frames().size() == 1)
-//             {
-//                 if ( m_hasdensity )
-//                 {
-//                     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
-
-//                     connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                     connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-
-//                     if ( m_hasorbitals )
-//                     {
-//                         m_orbitals->SetBeta(m_hasalphabeta);
-//                         m_orbitals->ListOrbitals();
-//                     }
-
-//                 }
-//             }
-//             else
-//             {
-//                 if ( m_hasdensity && !m_hasorbitals )
-//                 {
-//                     if (!m_world->Molecules().back().Frames().back().ElectronicDensityData().Density().Empty())
-//                     {
-//                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
-
-//                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-//                     }
-//                     else
-//                     {
-//                         m_orbitals->HideAllButtons();
-//                     }
-
-//                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateDensities ( size_t )) );
-
-//                 }
-
-//                 if ( m_hasorbitals)
-//                 {
-//                     if (!m_world->Molecules().back().Frames().back().OrbitalsData().BasisCenters().empty())
-//                     {
-//                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
-
-//                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-
-//                         m_orbitals->SetBeta(m_hasalphabeta);
-//                         m_orbitals->ListOrbitals();
-//                     }
-//                     else
-//                     {
-//                         m_orbitals->HideAllButtons();
-//                     }
-//                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateOrbitals ( size_t )) );
-//                 }
-
-//             }
-
-//             if ( m_hasdensity )
-//             {
-//                 m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
-
-//                 connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                 connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                 connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-
-//                 if (m_hasorbitals)
-//                 {
-//                     m_orbitals->SetBeta(m_hasalphabeta);
-//                     m_orbitals->ListOrbitals();
-//                 }
-//             }
-
-
-//             q->addWidget(m_measures);
-//             q->addWidget(m_orbitals);
-//             QList<int> list = q->sizes();
-//             list[0]=m_size.width()-m_size.width()/4;
-//             list[1]=m_size.width()/4;
-//             list[2]=0;
-//             list[3]=0;
-//             q->setSizes(list);
-//             m_measures->hide();
-//             m_orbitals->hide();
-//             m_stackedwidget->addWidget(q);
-//             OnLastFrame();
-//         }
-
-//         if (it->type == kryomol::uv)
-//         {
-//             m_world = new kryomol::World(this,World::opticalvisor);
-//             m_qparser->SetMolecules(&m_world->Molecules());
-//             try
-//             {
-//                 m_qparser->Parse(it->pos);
-//             }
-//             catch( ...)
-//             {
-//                 std::cerr << "Error parsing gaussian file" << std::endl;
-//                 delete m_world;
-//                 return;
-//             }
-
-//             m_world->Initialize();
-//             SetBondOrders();
-//             m_qparser->ParseUV ( it->pos );
-
-//             QJobUVWidget* q = new QJobUVWidget(m_file, m_world, this);
-
-//             m_measures = new QMeasureWidget(this);
-//             m_orbitals = new QOrbitalWidget(this);
-
-//             connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
-//             connect(m_world->Visor(),SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
-//             connect(m_world->Visor(),SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
-//             connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
-
-//             connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
-//             connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
-//             connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
-//             connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
-//             connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
-
-//             QUVWidget* uvwidget = ( static_cast<QUVWidget*> (q->widget(1)));
-//             if ( m_hasdensity )
-//             {
-//                 m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
-
-//                 connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
-//                 connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
-
-//                 if ( m_hasorbitals )
-//                 {
-//                     m_orbitals->SetBeta(m_hasalphabeta);
-//                     uvwidget->SetBeta(m_hasalphabeta);
-//                     m_orbitals->ListOrbitals();
-
-//                     uvwidget->SetCheckableTransitionChanges();
-
-//                     connect(m_orbitals,SIGNAL(offtransitions(bool)),uvwidget,SLOT(OffShowTransitionChanges(bool)));
-//                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
-//                     connect(uvwidget,SIGNAL(showtransition(int)),m_orbitals,SLOT(OnShowTransitionChange(int)));
-//                     connect(uvwidget,SIGNAL(showdensities(int)),m_orbitals,SLOT(OnShowDensityChange(int)));
-//                     connect(uvwidget,SIGNAL(offshowtransitions(bool)),m_orbitals,SLOT(OffButtons(bool)));
-//                 }
-//             }
-//             else
-//             {
-//                 if (!m_world->Molecules().back().Frames().back().TransitionChanges().empty())
-//                     uvwidget->SetCheckableTransitionCoefficients();
-//             }
-
-//             q->addWidget(m_measures);
-//             q->addWidget(m_orbitals);
-//             QList<int> list = q->sizes();
-//             list[0]=m_size.width()-m_size.width()/4;
-//             list[1]=m_size.width()/4;
-//             list[2]=0;
-//             list[3]=0;
-//             q->setSizes(list);
-//             m_measures->hide();
-//             m_orbitals->hide();
-//             m_stackedwidget->addWidget(q);
-//             OnLastFrame();
-//         }
-//     }
-
-
-//     //Show the first job and update m_world and m_measures
-//     QJobWidget* q = ( static_cast<QJobWidget*> ( m_stackedwidget->currentWidget()));
-//     m_world = q->GetWorld();
-//     m_measures = ( static_cast<QMeasureWidget*> ( q->findChild<QMeasureWidget*>() ));
-//     m_orbitals = ( static_cast<QOrbitalWidget*> ( q->findChild<QOrbitalWidget*>() ));
-//     setCentralWidget(m_stackedwidget);
+    //     kryomol::KryoMolApplication::SetFile ( m_file );
+    // #ifdef __MINGW32__
+    //     kryomol::ParserFactory factory(std::filesystem::u8path(m_file.toUtf8().data()));
+    // #else
+    //     kryomol::ParserFactory factory(m_file.toStdString().c_str());
+    // #endif
+
+    //     m_qparser=factory.BuildParser();
+
+    //     if ( m_qparser == nullptr )
+    //     {
+    //         QMessageBox k;
+    //         k.setText ( "Could not determine file type" );
+    //         k.exec();
+    //         return;
+    //     }
+
+    //     m_hasdensity=factory.existDensity();
+    //     m_hasorbitals=factory.existOrbitals();
+    //     m_hasalphabeta=factory.existAlphaBeta();
+
+    //     //Looking for an Optimization Job:
+
+    //     QString apptitle = "KryoMol";
+    //     setWindowTitle ( apptitle + " file://"+m_file );
+
+    //     std::vector<kryomol::JobHeader> jobs=m_qparser->Jobs();
+
+    //     if ( jobs.empty() ) return;
+
+    //     for ( std::vector<kryomol::JobHeader>::iterator it=jobs.begin();it!=jobs.end();++it )
+    //     {
+    //         if (it->type == kryomol::singlepoint)
+    //         {
+    //             m_world = new kryomol::World (this,kryomol::World::kryovisor);
+    //             m_qparser->SetMolecules(&m_world->Molecules() );
+    //             try
+    //             {
+    //                 m_qparser->Parse(it->pos);
+    //             }
+    //             catch(...)
+    //             {
+    //                 std::cerr << "error opening gaussian file";
+    //                 delete m_world;
+    //                 return;
+    //             }
+    //             m_world->Initialize();
+    //             SetBondOrders();
+    //             QJobSpWidget* q = new QJobSpWidget(m_world,this);
+    //             m_measures = new QMeasureWidget(this);
+    //             m_orbitals = new QOrbitalWidget(this);
+
+    //             connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
+    //             connect(m_world->Visor(), SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
+    //             connect(m_world->Visor(), SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
+    //             connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
+    //             connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
+    //             connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
+    //             connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
+    //             connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
+    //             connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
+
+    //             if ( m_world->Molecules().back().Frames().size() == 1)
+    //             {
+    //                 if ( m_hasdensity )
+    //                 {
+    //                     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
+
+    //                     connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                     connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //                     if ( m_hasorbitals )
+    //                     {
+    //                         m_orbitals->SetBeta(m_hasalphabeta);
+    //                         m_orbitals->ListOrbitals();
+    //                     }
+
+    //                 }
+    //             }
+    //             else
+    //             {
+    //                 if ( m_hasdensity && !m_hasorbitals )
+    //                 {
+    //                     if (!m_world->Molecules().back().CurrentFrame().ElectronicDensityData().Density().Empty())
+    //                     {
+    //                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
+
+    //                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+    //                     }
+    //                     else
+    //                     {
+    //                         m_orbitals->HideAllButtons();
+    //                     }
+
+    //                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateDensities ( size_t )) );
+
+    //                 }
+
+    //                 if ( m_hasorbitals )
+    //                 {
+    //                     if (!m_world->Molecules().back().CurrentFrame().OrbitalsData().BasisCenters().empty())
+    //                     {
+    //                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
+
+    //                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //                         m_orbitals->SetBeta(m_hasalphabeta);
+    //                         m_orbitals->ListOrbitals();
+    //                     }
+    //                     else
+    //                     {
+    //                         m_orbitals->HideAllButtons();
+    //                     }
+    //                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateOrbitals ( size_t )) );
+    //                 }
+
+    //             }
+
+
+    //             q->addWidget(m_measures);
+    //             q->addWidget(m_orbitals);
+    //             QList<int> list = q->sizes();
+    //             list[0]=m_size.width()-m_size.width()/4;
+    //             list[1]=m_size.width()/4;
+
+    //             q->setSizes(list);
+    //             m_measures->hide();
+    //             m_orbitals->hide();
+    //             m_stackedwidget->addWidget(q);
+    //         }
+
+    //         if (it->type == kryomol::opt || it->type == kryomol::dyn )
+    //         {
+    //             m_world = new World (this,World::optvisor);
+    //             m_qparser->SetMolecules(&m_world->Molecules());
+    //             try
+    //             {
+    //                 m_qparser->Parse(it->pos);
+    //             }
+    //             catch(...)
+    //             {
+    //                 std::cerr << "error opening gaussian file";
+    //                 delete m_world;
+    //                 return;
+    //             }
+    //             m_world->Initialize();
+    //             SetBondOrders();
+    //             QJobWidget* q;
+    //             if ( it->type == kryomol::opt )
+    //                 q = new QJobOptWidget(m_world,this);
+    //             else q = new QJobDynWidget(m_world,this);
+
+    //             m_measures = new QMeasureWidget(this);
+    //             m_orbitals = new QOrbitalWidget(this);
+
+    //             connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
+    //             connect(m_world->Visor(), SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
+    //             connect(m_world->Visor(), SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
+    //             connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
+    //             connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
+    //             connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
+    //             connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
+    //             connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
+    //             connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
+
+    //             if ( m_world->Molecules().back().Frames().size() == 1)
+    //             {
+    //                 if ( m_hasdensity )
+    //                 {
+    //                     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
+
+    //                     connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                     connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //                     if ( m_hasorbitals )
+    //                     {
+    //                         m_orbitals->SetBeta(m_hasalphabeta);
+    //                         m_orbitals->ListOrbitals();
+    //                     }
+
+    //                 }
+    //             }
+    //             else
+    //             {
+    //                 if ( m_hasdensity && !m_hasorbitals )
+    //                 {
+    //                     if (!m_world->Molecules().back().CurrentFrame().ElectronicDensityData().Density().Empty())
+    //                     {
+    //                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
+
+    //                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+    //                     }
+    //                     else
+    //                     {
+    //                         m_orbitals->HideAllButtons();
+    //                     }
+
+    //                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateDensities ( size_t )) );
+
+    //                 }
+
+    //                 if (m_hasorbitals)
+    //                 {
+    //                     if (!m_world->Molecules().back().CurrentFrame().OrbitalsData().BasisCenters().empty())
+    //                     {
+    //                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
+
+    //                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //                         m_orbitals->SetBeta(m_hasalphabeta);
+    //                         m_orbitals->ListOrbitals();
+    //                     }
+    //                     else
+    //                     {
+    //                         m_orbitals->HideAllButtons();
+    //                     }
+    //                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateOrbitals ( size_t )) );
+    //                 }
+
+    //             }
+
+
+    //             /*if (existDensity())
+    //                {
+    //                    m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
+
+    //                    connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                    connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                    connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //                    if (existOrbitals())
+    //                    {
+    //                        m_orbitals->SetBeta(existAlphaBeta());
+    //                        m_orbitals->ListOrbitals();
+    //                    }
+    //                }*/
+
+    //             q->addWidget(m_measures);
+    //             m_measures->hide();
+    //             q->addWidget(m_orbitals);
+    //             m_orbitals->hide();
+    //             QList<int> list = q->sizes();
+    //             if ( it->type == kryomol::opt )
+    //             {
+    //                 list[0]=m_size.width()-m_size.width()/4;
+    //                 list[1]=m_size.width()/4;
+    //                 list[2]=0;
+    //                 list[3]=0;
+    //             }
+    //             else { //dyn
+    //                 list[0]=m_size.width()-m_size.width()/4;
+    //                 list[1]=m_size.width()/4;
+    //             }
+    //             q->setSizes(list);
+    //             m_stackedwidget->addWidget(q);
+    //             OnLastFrame();
+
+    //         }
+
+    //         if (it->type == kryomol::freq)
+    //         {
+    //             m_world = new kryomol::World(this,World::freqvisor);
+    //             m_qparser->SetMolecules(&m_world->Molecules());
+    //             try
+    //             {
+    //                 m_qparser->Parse(it->pos);
+    //             }
+    //             catch( ...)
+    //             {
+    //                 std::cerr << "Error parsing gaussian file" << std::endl;
+    //                 delete m_world;
+    //                 return;
+    //             }
+
+    //             try
+    //             {
+    //                 m_qparser->ParseFrequencies ( it->pos );
+    //             }
+    //             catch(...)
+    //             {
+    //                 std::cerr << "Error parsing frequencies" << std::endl;
+    //                 return;
+
+    //             }
+    //             m_world->Initialize();
+    //             SetBondOrders();
+
+    //             QJobFreqWidget* q = new QJobFreqWidget (m_file, m_world, this);
+    //             m_measures = new QMeasureWidget(this);
+    //             m_orbitals = new QOrbitalWidget(this);
+
+    //             connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
+    //             connect(m_world->Visor(),SIGNAL(angle(QString&)),m_measures,SLOT(OnWriteAngle(QString&)));
+    //             connect(m_world->Visor(),SIGNAL(dihedral(QString&)),m_measures,SLOT(OnWriteDihedral(QString&)));
+    //             connect(m_world,SIGNAL(currentFrame(size_t)),this,SLOT(OnUpdateMeasures(size_t)));
+
+    //             connect(m_measures,SIGNAL(clearAll()),m_world->Visor(),SLOT(OnClearMeasures()));
+    //             connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
+    //             connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
+    //             connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
+    //             connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
+
+    //             if ( m_world->Molecules().back().Frames().size() == 1)
+    //             {
+    //                 if ( m_hasdensity )
+    //                 {
+    //                     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
+
+    //                     connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                     connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //                     if ( m_hasorbitals )
+    //                     {
+    //                         m_orbitals->SetBeta(m_hasalphabeta);
+    //                         m_orbitals->ListOrbitals();
+    //                     }
+
+    //                 }
+    //             }
+    //             else
+    //             {
+    //                 if ( m_hasdensity && !m_hasorbitals )
+    //                 {
+    //                     if (!m_world->Molecules().back().Frames().back().ElectronicDensityData().Density().Empty())
+    //                     {
+    //                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
+
+    //                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+    //                     }
+    //                     else
+    //                     {
+    //                         m_orbitals->HideAllButtons();
+    //                     }
+
+    //                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateDensities ( size_t )) );
+
+    //                 }
+
+    //                 if ( m_hasorbitals)
+    //                 {
+    //                     if (!m_world->Molecules().back().Frames().back().OrbitalsData().BasisCenters().empty())
+    //                     {
+    //                         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
+
+    //                         connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                         connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //                         m_orbitals->SetBeta(m_hasalphabeta);
+    //                         m_orbitals->ListOrbitals();
+    //                     }
+    //                     else
+    //                     {
+    //                         m_orbitals->HideAllButtons();
+    //                     }
+    //                     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateOrbitals ( size_t )) );
+    //                 }
+
+    //             }
+
+    //             if ( m_hasdensity )
+    //             {
+    //                 m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
+
+    //                 connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                 connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                 connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //                 if (m_hasorbitals)
+    //                 {
+    //                     m_orbitals->SetBeta(m_hasalphabeta);
+    //                     m_orbitals->ListOrbitals();
+    //                 }
+    //             }
+
+
+    //             q->addWidget(m_measures);
+    //             q->addWidget(m_orbitals);
+    //             QList<int> list = q->sizes();
+    //             list[0]=m_size.width()-m_size.width()/4;
+    //             list[1]=m_size.width()/4;
+    //             list[2]=0;
+    //             list[3]=0;
+    //             q->setSizes(list);
+    //             m_measures->hide();
+    //             m_orbitals->hide();
+    //             m_stackedwidget->addWidget(q);
+    //             OnLastFrame();
+    //         }
+
+    //         if (it->type == kryomol::uv)
+    //         {
+    //             m_world = new kryomol::World(this,World::opticalvisor);
+    //             m_qparser->SetMolecules(&m_world->Molecules());
+    //             try
+    //             {
+    //                 m_qparser->Parse(it->pos);
+    //             }
+    //             catch( ...)
+    //             {
+    //                 std::cerr << "Error parsing gaussian file" << std::endl;
+    //                 delete m_world;
+    //                 return;
+    //             }
+
+    //             m_world->Initialize();
+    //             SetBondOrders();
+    //             m_qparser->ParseUV ( it->pos );
+
+    //             QJobUVWidget* q = new QJobUVWidget(m_file, m_world, this);
+
+    //             m_measures = new QMeasureWidget(this);
+    //             m_orbitals = new QOrbitalWidget(this);
+
+    //             connect(m_world->Visor(),SIGNAL(distance(QString&)),m_measures,SLOT(OnWriteDistance(QString&)));
+    //             connect(m_world->Visor(),SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
+    //             connect(m_world->Visor(),SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
+    //             connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );
+
+    //             connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
+    //             connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
+    //             connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
+    //             connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
+    //             connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
+
+    //             QUVWidget* uvwidget = ( static_cast<QUVWidget*> (q->widget(1)));
+    //             if ( m_hasdensity )
+    //             {
+    //                 m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
+
+    //                 connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //                 connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //                 if ( m_hasorbitals )
+    //                 {
+    //                     m_orbitals->SetBeta(m_hasalphabeta);
+    //                     uvwidget->SetBeta(m_hasalphabeta);
+    //                     m_orbitals->ListOrbitals();
+
+    //                     uvwidget->SetCheckableTransitionChanges();
+
+    //                     connect(m_orbitals,SIGNAL(offtransitions(bool)),uvwidget,SLOT(OffShowTransitionChanges(bool)));
+    //                     connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //                     connect(uvwidget,SIGNAL(showtransition(int)),m_orbitals,SLOT(OnShowTransitionChange(int)));
+    //                     connect(uvwidget,SIGNAL(showdensities(int)),m_orbitals,SLOT(OnShowDensityChange(int)));
+    //                     connect(uvwidget,SIGNAL(offshowtransitions(bool)),m_orbitals,SLOT(OffButtons(bool)));
+    //                 }
+    //             }
+    //             else
+    //             {
+    //                 if (!m_world->Molecules().back().Frames().back().TransitionChanges().empty())
+    //                     uvwidget->SetCheckableTransitionCoefficients();
+    //             }
+
+    //             q->addWidget(m_measures);
+    //             q->addWidget(m_orbitals);
+    //             QList<int> list = q->sizes();
+    //             list[0]=m_size.width()-m_size.width()/4;
+    //             list[1]=m_size.width()/4;
+    //             list[2]=0;
+    //             list[3]=0;
+    //             q->setSizes(list);
+    //             m_measures->hide();
+    //             m_orbitals->hide();
+    //             m_stackedwidget->addWidget(q);
+    //             OnLastFrame();
+    //         }
+    //     }
+
+
+    //     //Show the first job and update m_world and m_measures
+    //     QJobWidget* q = ( static_cast<QJobWidget*> ( m_stackedwidget->currentWidget()));
+    //     m_world = q->GetWorld();
+    //     m_measures = ( static_cast<QMeasureWidget*> ( q->findChild<QMeasureWidget*>() ));
+    //     m_orbitals = ( static_cast<QOrbitalWidget*> ( q->findChild<QOrbitalWidget*>() ));
+    //     setCentralWidget(m_stackedwidget);
 
 }
 
@@ -1758,64 +1848,64 @@ void KryoMolMainWindow::OpenGaussianFile()
 
 bool KryoMolMainWindow::isGaussianFile()
 {
-//     kryomol::KryoMolApplication::SetFile ( m_file );
+    //     kryomol::KryoMolApplication::SetFile ( m_file );
 
-// #ifdef __MINGW32__
-//     kryomol::ParserFactory factory(std::filesystem::u8path(m_file.toUtf8().data()));
-// #else
-//     kryomol::ParserFactory factory(m_file.toStdString().c_str());
-// #endif
+    // #ifdef __MINGW32__
+    //     kryomol::ParserFactory factory(std::filesystem::u8path(m_file.toUtf8().data()));
+    // #else
+    //     kryomol::ParserFactory factory(m_file.toStdString().c_str());
+    // #endif
 
-//     bool ftype = factory.isGaussianFile();
+    //     bool ftype = factory.isGaussianFile();
 
-//     return ftype;
+    //     return ftype;
 }
 
 bool KryoMolMainWindow::isGaussianFile(QString file)
 {
 
-// #ifdef __MINGW32__
-//     kryomol::ParserFactory factory(std::filesystem::u8path(m_file.toUtf8().data()));
-// #else
-//     kryomol::ParserFactory factory(m_file.toStdString().c_str());
-// #endif
+    // #ifdef __MINGW32__
+    //     kryomol::ParserFactory factory(std::filesystem::u8path(m_file.toUtf8().data()));
+    // #else
+    //     kryomol::ParserFactory factory(m_file.toStdString().c_str());
+    // #endif
 
-//     return factory.isGaussianFile();
+    //     return factory.isGaussianFile();
 }
 
 void KryoMolMainWindow::UpdateRecentFiles()
 {
 
-//     QSettings settings;
-//     QStringList files = settings.value ( "RecentFiles" ).toStringList();
-//     if ( !m_file.isEmpty() )
-//     {
-//         files.removeAll ( m_file );
-//         files.prepend ( m_file );
-//         while ( files.size() > maxrecentfiles )
-//             files.removeLast();
-//         settings.setValue ( "RecentFiles", files );
-//     }
-//     int nfiles = qMin ( files.size(), maxrecentfiles );
+    //     QSettings settings;
+    //     QStringList files = settings.value ( "RecentFiles" ).toStringList();
+    //     if ( !m_file.isEmpty() )
+    //     {
+    //         files.removeAll ( m_file );
+    //         files.prepend ( m_file );
+    //         while ( files.size() > maxrecentfiles )
+    //             files.removeLast();
+    //         settings.setValue ( "RecentFiles", files );
+    //     }
+    //     int nfiles = qMin ( files.size(), maxrecentfiles );
 
-//     for ( int i = 0; i < nfiles; ++i )
-//     {
-//         QString text = tr ( "&%1 %2" ).arg ( i + 1 ).arg ( QFileInfo ( files[i] ).fileName() );
-//         m_recentfileactions.at ( i )->setText ( text );
-//         m_recentfileactions.at ( i )->setData ( files[i] );
-//         m_recentfileactions.at ( i )->setVisible ( true );
-//     }
-//     for ( int j = nfiles; j < maxrecentfiles; ++j )
-//         m_recentfileactions[j]->setVisible ( false );
+    //     for ( int i = 0; i < nfiles; ++i )
+    //     {
+    //         QString text = tr ( "&%1 %2" ).arg ( i + 1 ).arg ( QFileInfo ( files[i] ).fileName() );
+    //         m_recentfileactions.at ( i )->setText ( text );
+    //         m_recentfileactions.at ( i )->setData ( files[i] );
+    //         m_recentfileactions.at ( i )->setVisible ( true );
+    //     }
+    //     for ( int j = nfiles; j < maxrecentfiles; ++j )
+    //         m_recentfileactions[j]->setVisible ( false );
 
 }
 
 void KryoMolMainWindow::SetBondOrders()
 {
-//     for ( std::vector<kryomol::Molecule>::iterator it=m_world->Molecules().begin();it!=m_world->Molecules().end();++it )
-//     {
-//         it->SetBonds();
-//     }
+    //     for ( std::vector<kryomol::Molecule>::iterator it=m_world->Molecules().begin();it!=m_world->Molecules().end();++it )
+    //     {
+    //         it->SetBonds();
+    //     }
 }
 
 
@@ -1824,7 +1914,7 @@ void KryoMolMainWindow::SetBondOrders()
 
 void KryoMolMainWindow::OnFirstFrame()
 {
-//     m_world->SelectFrame ( 0 );
+    //     m_world->SelectFrame ( 0 );
 }
 
 void KryoMolMainWindow::OnLastFrame()
@@ -1962,7 +2052,7 @@ void KryoMolMainWindow::OnDrawDensity(bool b)
 
 void KryoMolMainWindow::OnUpdateDensities(size_t frame)
 {
-   /* if (!m_world->Molecules().back().CurrentFrame().ElectronicDensityData().Density().Empty())
+    /* if (!m_world->Molecules().back().CurrentFrame().ElectronicDensityData().Density().Empty())
         m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().CurrentFrame()));
     else
         m_orbitals->HideAllButtons();*/
@@ -2530,27 +2620,27 @@ void KryoMolMainWindow::OnProtonateTrigonalCenterAction()
 
 void KryoMolMainWindow::OnProtonateTrigonalCenter(std::vector<size_t> selatoms)
 {
-//     std::vector<Atom>& atoms=m_world->CurrentMolecule()->Atoms();
-//     std::vector<Coordinate>& c=m_world->CurrentMolecule()->CurrentFrame().XYZ();
-//     std::vector<Bond>* b=nullptr;
-//     if ( m_world->CurrentMolecule()->Bonds().empty() )
-//     {
-//         b=&m_world->CurrentMolecule()->CurrentFrame().Bonds();
-//     } else b=&m_world->CurrentMolecule()->Bonds();
-//     //get the first vector
-//     qDebug() << "i=" << selatoms[0] << "," << selatoms[1] << "," << selatoms[2];
-//     Coordinate c1=c[selatoms[1]]-c[selatoms[0]];
-//     Coordinate c2=c[selatoms[2]]-c[selatoms[0]];
-//     Coordinate ch=c1^c2;
-//     double norm=ch.Norm();
-//     ch/=norm;
-//     ch+=c[selatoms[0]];
-//     atoms.push_back(Atom(1));
-//     c.push_back(ch);
-//     m_world->Visor()->update();
-//     Bond hc(selatoms[0],atoms.size()-1);
-//     b->push_back(hc);
-// }
+    //     std::vector<Atom>& atoms=m_world->CurrentMolecule()->Atoms();
+    //     std::vector<Coordinate>& c=m_world->CurrentMolecule()->CurrentFrame().XYZ();
+    //     std::vector<Bond>* b=nullptr;
+    //     if ( m_world->CurrentMolecule()->Bonds().empty() )
+    //     {
+    //         b=&m_world->CurrentMolecule()->CurrentFrame().Bonds();
+    //     } else b=&m_world->CurrentMolecule()->Bonds();
+    //     //get the first vector
+    //     qDebug() << "i=" << selatoms[0] << "," << selatoms[1] << "," << selatoms[2];
+    //     Coordinate c1=c[selatoms[1]]-c[selatoms[0]];
+    //     Coordinate c2=c[selatoms[2]]-c[selatoms[0]];
+    //     Coordinate ch=c1^c2;
+    //     double norm=ch.Norm();
+    //     ch/=norm;
+    //     ch+=c[selatoms[0]];
+    //     atoms.push_back(Atom(1));
+    //     c.push_back(ch);
+    //     m_world->Visor()->update();
+    //     Bond hc(selatoms[0],atoms.size()-1);
+    //     b->push_back(hc);
+    // }
 }
 
 void KryoMolMainWindow::OnRunOrcaWidget()

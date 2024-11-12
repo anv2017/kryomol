@@ -1,5 +1,5 @@
 /*****************************************************************************************
-                            qryomolmainwindow.h  -  description
+                            kryomolmainwindow.h  -  description
                              -------------------
 This file is part of the KryoMol project.
 For more information, see <http://kryomol.sourceforge.io/>

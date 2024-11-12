@@ -193,7 +193,7 @@ void QFreqWidget::InitTable(size_t fidx)
     _maxLimitLineEdit->setText(max);
 
     CalculateSpectrum();
-    emit Type(GetType()); //to stablish the baseline
+    //emit Type(GetType()); //to stablish the baseline
     _numpoints->setValue(m_npoints);
 }
 

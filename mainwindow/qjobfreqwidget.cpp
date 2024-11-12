@@ -21,7 +21,8 @@ the Free Software Foundation version 2 of the License.
 
 #include <QDockWidget>
 
-QJobFreqWidget::QJobFreqWidget(const QString& file, QWidget* parent ) : QJobWidget (parent), m_file (file)
+QJobFreqWidget::QJobFreqWidget(const QString& file, QWidget* parent ) : QJobWidget (parent),
+    m_file (file), m_irwidget(nullptr)
 {
        m_world = new kryomol::World(this,kryomol::World::freqvisor);
 }
@@ -33,20 +34,18 @@ QJobFreqWidget::~QJobFreqWidget()
 
 void QJobFreqWidget::InitWidgets()
 {
+    this->World()->Initialize();
     this->setCentralWidget(m_world->Visor());
-
+    InitCommonWidgets();
 
 
     //Create the FreqWidget
     QDockWidget* fdock = new QDockWidget(this);
     fdock->setAllowedAreas(Qt::RightDockWidgetArea);
-    m_freqwidget = new QFreqWidget (this->World(),m_file, this);
-    fdock->setWidget(m_freqwidget);
-    for(auto w : m_dockwidgets)
-    {
-        this->tabifyDockWidget(fdock,w);
-    }
-
+    m_freqwidget = new QFreqWidget (this->World(),m_file, m_tabwidget);
+    m_tabwidget->addTab(m_freqwidget,"Freq");
+    fdock->setWidget(m_tabwidget);
+    this->addDockWidget(Qt::RightDockWidgetArea,fdock);
 
     connect ( m_freqwidget,SIGNAL ( Type ( QPlotSpectrum::SpectrumType ) ),this,SLOT ( OnIRTypeChanged ( QPlotSpectrum::SpectrumType ) ) );
 
@@ -76,12 +75,21 @@ void QJobFreqWidget::OnShowSpectrum ( bool bshow )
 
     //Create the IRWidget
     QDockWidget* irdock = new QDockWidget(this);
-    QIRWidget* ir= new QIRWidget ( this->World(),irdock );
-    irdock->setWidget(ir);
+    this->addDockWidget(Qt::BottomDockWidgetArea,irdock);
+    m_irwidget= new QIRWidget ( this->World(),irdock );
+    irdock->setWidget(m_irwidget);
     irdock->setAllowedAreas(Qt::BottomDockWidgetArea);
 
-    QPlotSpectrum* jc= ir->GetSpectrum();
+    QPlotSpectrum* jc= m_irwidget->GetSpectrum();
     connect ( m_freqwidget,SIGNAL ( data ( fidarray*,float,float, float ) ),jc,SLOT ( SetData ( fidarray*,float,float,float ) ) );
+    std::vector<QColor> colors;
+    for( const auto& f : this->World()->CurrentMolecule()->Frames() )
+    {
+        float h,s,l;
+        f.GetColor(h,s,l);
+        colors.push_back(QColor::fromHslF(h,s,l));
+    }
+    jc->SetColors(colors);
     jc->SetData ( &m_freqwidget->GetData(),&m_freqwidget->GetTotalData(),m_freqwidget->Max(),m_freqwidget->Min(), m_freqwidget->Shift(),QPlotSpectrum::IR);
 
 

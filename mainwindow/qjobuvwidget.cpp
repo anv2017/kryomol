@@ -25,7 +25,8 @@ the Free Software Foundation version 2 of the License.
 
 #include <QDockWidget>
 
-QJobUVWidget::QJobUVWidget(const QString& file, QWidget* parent ) : QJobWidget (parent), m_file (file)
+QJobUVWidget::QJobUVWidget(const QString& file, QWidget* parent ) : QJobWidget (parent),
+    m_file (file), m_irwidget(nullptr)
 {
     m_world = new kryomol::World(this,kryomol::World::opticalvisor);
 }
@@ -95,13 +96,21 @@ void QJobUVWidget::OnShowUVSpectrum ( bool bshow )
     if ( m_irwidget )
     {
         bshow ? m_irwidget->show() : m_irwidget->hide();
+        return;
     }
+
     if ( !bshow ) return;
 
+
     QDockWidget* irdock = new QDockWidget(this);
+    this->addDockWidget(Qt::BottomDockWidgetArea,irdock);
+        //irdock->setAllowedAreas(Qt::BottomDockWidgetArea);
     m_irwidget = new QIRWidget(this->World(),this);
+    m_irwidget->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Preferred);
     irdock->setWidget(m_irwidget);
-    irdock->setAllowedAreas(Qt::BottomDockWidgetArea);
+
+
+    m_dockwidgets.push_back(irdock);
 
     QPlotSpectrum* jc= m_irwidget->GetSpectrum();
     //jc->SetType(QPlotSpectrum::UV);

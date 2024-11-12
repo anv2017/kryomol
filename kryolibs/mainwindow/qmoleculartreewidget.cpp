@@ -41,9 +41,37 @@ void QMolecularTreeWidget::Init()
     labels << "color";
     const std::vector<double>& populations=m_world->CurrentMolecule()->Populations();
 
-    if ( m_world->CurrentMolecule()->Frames().back().PotentialEnergy() )
+    const Energy& e=m_world->CurrentMolecule()->Frames().back().PotentialEnergy();
+    if ( e )
     {
-        labels << "Energies (a.u.)";
+        QString elabel="E";
+        switch( e.Unity() )
+        {
+        case Energy::HARTREE:
+            elabel+="(a.u.)";
+            break;
+        case Energy::EV:
+            elabel+= "(eV)";
+            break;
+        case Energy::J:
+            elabel+= "(J/mol)";
+            break;
+        case Energy::KJ:
+            elabel+= "(KJ/mol)";
+            break;
+        case Energy::CAL:
+            elabel+= "(cal/mol)";
+            break;
+        case Energy::KCAL:
+            elabel += "(Kcal/mol)";
+            break;
+        default:
+            elabel+= "()";
+            break;
+        }
+
+        labels << elabel;
+
         ncolumns++;
     }
 
