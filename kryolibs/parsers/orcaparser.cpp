@@ -126,6 +126,14 @@ bool OrcaParser::GetGeometry()
 
     Molecules()->back().SetBonds();
 
+    //just keepe the last position in case we needed later
+    //since Orca do not write agian geoemtyr in the job section
+    if ( m_pos.size() > 1 )
+    {
+        m_pos.erase(m_pos.begin(), m_pos.end() - 1);
+    }
+
+
     return true;
 }
 

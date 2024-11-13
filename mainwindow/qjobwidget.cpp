@@ -23,6 +23,8 @@ the Free Software Foundation version 2 of the License.
 QJobWidget::QJobWidget(QWidget* parent) : QMainWindow (parent), m_world (nullptr)
 {
     m_tabwidget = new QTabWidget();
+    //This is necessary to the right docked widget occupy the whole height
+    this->setCorner ( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
 }
 
 QJobWidget::~QJobWidget()

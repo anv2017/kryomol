@@ -921,6 +921,7 @@ void KryoMolMainWindow::OnOpenFile(QString fname)
             qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
             qparser->SetMolecules( &w->World()->Molecules() );
             qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
+
             try {
                 qparser->Parse(j.pos);
                 qparser->ParseFrequencies(j.pos);
