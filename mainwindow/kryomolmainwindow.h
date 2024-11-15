@@ -18,6 +18,7 @@ the Free Software Foundation version 2 of the License.
 #include <QToolBar>
 #include <QActionGroup>
 #include <QProgressBar>
+#include <QPair>
 #include <qmolecularlistcontrol.h>
 #include <qpdbcontrol.h>
 #include <qmeasurewidget.h>
@@ -54,9 +55,9 @@ public:
 public slots:
     void OnOpenFile(QString filename);
 
-protected:
-    void UpdateRecentFiles(QString filename=QString());
 private:
+    enum filetype { PLAINFILE=0,UVFOLDER,IRFOLDER };
+    void UpdateRecentFiles(const QPair<QString,int>& f=QPair<QString,int>() );
     void OpenFile();
     void OpenUVFolder(QString foldername);
     void OpenIRFolder(QString foldername);

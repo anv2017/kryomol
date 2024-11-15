@@ -868,7 +868,7 @@ void KryoMolMainWindow::OnOpenFile(QString fname)
 
     m_hasdensity=m_hasorbitals=m_hasalphabeta=true;
 
-   // qDebug() << "file=" << f << endl;
+// qDebug() << "file=" << f << endl;
 #ifdef __MINGW32__
     kryomol::ParserFactory factory(std::filesystem::u8path(fname.toUtf8().data()));
 #else
@@ -1047,6 +1047,7 @@ void KryoMolMainWindow::OpenUVFolder(QString foldername)
     //Should this work ?
     SetBondOrders();
     juv->InitWidgets();
+    UpdateRecentFiles(QPair<QString,int>(foldername,UVFOLDER));
     //this->InitWidgets(kryomol::uv,m_hasdensity,m_hasorbitals);
 
 }
@@ -1247,34 +1248,22 @@ void KryoMolMainWindow::OnUpdateFrameForOrbitals(size_t f)
 void KryoMolMainWindow::OnOpenRecentFile()
 {
     QAction *action = qobject_cast<QAction *> ( sender() );
-    if ( action )
+    if ( action == nullptr ) return;
+
+    QPair<QString,int> p=action->data().value< QPair<QString,int> >();
+
+    switch(p.second)
     {
-        m_file=action->data().toString();
-
-        bool b = isGaussianFile();
-
-        if (b)
-        {
-            QApplication::setOverrideCursor(QCursor(Qt::BusyCursor));
-            statusBar()->showMessage(tr("Opening file..."));
-
-            InitGaussian();
-
-            OpenGaussianFile();
-
-            FinishGaussian();
-
-            QApplication::restoreOverrideCursor();
-            statusBar()->clearMessage();
-
-        }
-        else
-        {
-
-            OpenGenericFile();
-        }
-
-        this->show();
+    case PLAINFILE:
+        OnOpenFile(p.first);
+        break;
+    case UVFOLDER:
+        OpenUVFolder(p.first);
+        break;
+    case IRFOLDER:
+        break;
+    default:
+        break;
     }
 }
 
@@ -1878,15 +1867,15 @@ bool KryoMolMainWindow::isGaussianFile(QString file)
 }
 
 //Take care now that we should store if we have a file, a uv folder or an IR folder
-void KryoMolMainWindow::UpdateRecentFiles(QString filename)
+void KryoMolMainWindow::UpdateRecentFiles(const QPair<QString,int>& f)
 {
 
     QSettings settings;
-    QStringList files = settings.value ( "RecentFiles" ).toStringList();
-    if ( !filename.isEmpty() )
+    QList< QVariant > files = settings.value ( "RecentFiles" ).toList();
+    if ( !f.first.isEmpty() )
     {
-        files.removeAll ( filename );
-        files.prepend ( filename );
+        files.removeAll ( QVariant::fromValue(f) );
+        files.prepend ( QVariant::fromValue(f) );
         while ( files.size() > maxrecentfiles )
             files.removeLast();
         settings.setValue ( "RecentFiles", files );
@@ -1895,7 +1884,9 @@ void KryoMolMainWindow::UpdateRecentFiles(QString filename)
 
     for ( int i = 0; i < nfiles; ++i )
     {
-        QString text = tr ( "&%1 %2" ).arg ( i + 1 ).arg ( QFileInfo ( files[i] ).fileName() );
+        QPair<QString,int> m=files[i].value< QPair<QString,int> >();
+        qDebug() << "pair is" << m << endl;
+        QString text = tr ( "&%1 %2" ).arg ( i + 1 ).arg ( QFileInfo ( m.first ).fileName() );
         m_recentfileactions.at ( i )->setText ( text );
         m_recentfileactions.at ( i )->setData ( files[i] );
         m_recentfileactions.at ( i )->setVisible ( true );
