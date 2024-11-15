@@ -29,25 +29,25 @@ class KRYOMOLCORE_API Energy
 {
 public:
     /** energy unities*/
-    enum unity { HARTREE,EV, J, KJ, CAL, KCAL };
+    enum unit { HARTREE,EV, J, KJ, CAL, KCAL };
     /** @return conversion factor to convert value in energy units u1 into energy units u2*/
-    static double Factor(unity a, unity b);
+    static double Factor(unit a, unit b);
     /** Build energy with initial value 0 in atomic units*/
-    Energy() :  m_value(nullptr) , m_unity(HARTREE) {}
+    Energy() :  m_value(nullptr) , m_units(HARTREE) {}
     /** */
     ~Energy() { delete m_value; }
     /** @return the value in the already set up units*/
     double Value() const { return *m_value; }
     /** @return the value in units u*/
-    double Value(unity u);
+    double Value(unit u);
     /** @return the magnitud of the energy value in unities @see unity*/
     //     operator double () const { return *m_value; }
 
     /** Build energy object with value v*/
-    explicit Energy(double v,unity u=HARTREE)
+    explicit Energy(double v,unit u=HARTREE)
     {
         m_value =new double(v);
-        m_unity=u;
+        m_units=u;
     }
     /** copy constructor*/
     Energy(const Energy& e)
@@ -55,12 +55,12 @@ public:
         if (  e )
         {
             m_value = new double(e.Value());
-            m_unity=e.Unity();
+            m_units=e.Units();
         }
         else
         {
             m_value=nullptr;
-            m_unity=HARTREE;
+            m_units=HARTREE;
         }
         //   if (!m_value && !e)  //Do nothing      
     }
@@ -72,19 +72,19 @@ public:
             if ( m_value && e )
             {
                 *m_value=e.Value();
-                m_unity=e.Unity();
+                m_units=e.Units();
 
             }
             if ( m_value && !e)
             {
                 delete m_value;
                 m_value=0;
-                m_unity=HARTREE;
+                m_units=HARTREE;
             }
             if ( !m_value && e)
             {
                 m_value = new double(e.Value());
-                m_unity=e.Unity();
+                m_units=e.Units();
 
             }
             //   if (!m_value && !e)  //Do nothing
@@ -103,9 +103,11 @@ public:
         return *this;
     }
     /** return energy unities setup globally*/
-    unity Unity() const;
+    unit Units() const;
     /** Setup globally energy unities*/
-    void SetUnity(unity u);
+    void SetUnits(unit u);
+    /** return the Boltzmann constant*/
+    static double Kb(unit u);
 
 private:
     typedef void (Energy::*bool_type) () const;
@@ -113,7 +115,7 @@ private:
 
 private:
     double* m_value;
-    unity m_unity;
+    unit m_units;
 
 public:
     /** @return true if energy has been defined*/
@@ -127,7 +129,7 @@ public:
     /** addition of energies*/
     friend Energy operator + (const Energy& a, const Energy& b)
     {
-        if ( a.Unity() != b.Unity() )
+        if ( a.Units() != b.Units() )
         {
             throw std::runtime_error("energy units differ");
         }

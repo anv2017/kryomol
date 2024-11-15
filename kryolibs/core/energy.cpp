@@ -14,32 +14,42 @@ the Free Software Foundation version 2 of the License.
 using namespace kryomol;
 
 constexpr double NA= 6.02214076e23;
+constexpr double KB=3.166790920045901e-06;
 
-Energy::unity Energy::Unity() const { return m_unity; }
+Energy::unit Energy::Units() const { return m_units; }
 
-void Energy::SetUnity(Energy::unity u) { m_unity=u; }
+void Energy::SetUnits(Energy::unit u) { m_units=u; }
 
 
 
-double Energy::Value(unity u)
+double Energy::Value(unit u)
 {
-    if ( this->Unity() == u ) return Value();
-    return this->Value()*Factor(this->Unity(),u);
+    if ( this->Units() == u ) return Value();
+    return this->Value()*Factor(this->Units(),u);
 }
 
+double Energy::Kb(unit u /*=Hartree*/)
+{
+    double k=KB;
+    if (u != HARTREE)
+    {
+        k*=Factor(HARTREE,u);
+    }
 
-double Energy::Factor(Energy::unity u1, Energy::unity u2)
+    return k;
+}
+double Energy::Factor(Energy::unit u1, Energy::unit u2)
 {
     if ( u1 == u2) return 1;
     bool invert =  u1 > u2;
     if (invert )
     {
         //std::swap is not compiling in the mac with clang 64
-        unity tmp=u1;
+        unit tmp=u1;
         u1=u2;
         u2=tmp;
     }
-        //std::swap(u1,u2);
+    //std::swap(u1,u2);
     double factor;
     if ( u1 == HARTREE && u2 == EV )
         factor=27.2114;

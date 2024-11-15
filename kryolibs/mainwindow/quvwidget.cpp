@@ -42,7 +42,7 @@ QUVWidget::QUVWidget(const kryomol::World* world, const QString& file, QWidget* 
     m_uvTable->setSortingEnabled(true);
     m_uvTable->setCopyHorizontalHeader(true);
     m_uvTable->verticalHeader()->hide();
-    m_tablelay=new QVBoxLayout(_uvFrame);
+    m_tablelay=new QVBoxLayout(_uvGroupBox);
     //tablelay->addWidget(m_uvTable);
 
 
@@ -125,6 +125,7 @@ void QUVWidget::OnShowSpectrum()
 
 void QUVWidget::InitTable(size_t fidx)
 {
+    _uvGroupBox->setTitle("Conformer: "+QString::number(fidx+1));
     const std::vector<Spectralline>& lines=m_linesets.at(fidx);
     delete m_uvTable;
     m_uvTable  = new QLogTableWidget(this);

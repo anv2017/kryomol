@@ -984,10 +984,13 @@ void KryoMolMainWindow::OpenUVFolder(QString foldername)
     QStringList validfiles;
     bool hasdensity=true;
     bool hasorbitals=true;
+    QTabWidget* ftab = new QTabWidget(m_tabwidget);
+    m_tabwidget->addTab(ftab,dir.canonicalPath());
 
-    QJobUVWidget* juv= new QJobUVWidget(foldername,this);
 
-    m_tabwidget->addTab( juv,"UV" );
+    QJobUVWidget* juv= new QJobUVWidget(foldername,ftab);
+
+    ftab->addTab( juv,"UV" );
     kryomol::World* world = juv->World();
 
     //m_glstack->update();
@@ -1874,30 +1877,31 @@ bool KryoMolMainWindow::isGaussianFile(QString file)
     //     return factory.isGaussianFile();
 }
 
-void KryoMolMainWindow::UpdateRecentFiles()
+//Take care now that we should store if we have a file, a uv folder or an IR folder
+void KryoMolMainWindow::UpdateRecentFiles(QString filename)
 {
 
-    //     QSettings settings;
-    //     QStringList files = settings.value ( "RecentFiles" ).toStringList();
-    //     if ( !m_file.isEmpty() )
-    //     {
-    //         files.removeAll ( m_file );
-    //         files.prepend ( m_file );
-    //         while ( files.size() > maxrecentfiles )
-    //             files.removeLast();
-    //         settings.setValue ( "RecentFiles", files );
-    //     }
-    //     int nfiles = qMin ( files.size(), maxrecentfiles );
+    QSettings settings;
+    QStringList files = settings.value ( "RecentFiles" ).toStringList();
+    if ( !filename.isEmpty() )
+    {
+        files.removeAll ( filename );
+        files.prepend ( filename );
+        while ( files.size() > maxrecentfiles )
+            files.removeLast();
+        settings.setValue ( "RecentFiles", files );
+    }
+    int nfiles = qMin ( files.size(), maxrecentfiles );
 
-    //     for ( int i = 0; i < nfiles; ++i )
-    //     {
-    //         QString text = tr ( "&%1 %2" ).arg ( i + 1 ).arg ( QFileInfo ( files[i] ).fileName() );
-    //         m_recentfileactions.at ( i )->setText ( text );
-    //         m_recentfileactions.at ( i )->setData ( files[i] );
-    //         m_recentfileactions.at ( i )->setVisible ( true );
-    //     }
-    //     for ( int j = nfiles; j < maxrecentfiles; ++j )
-    //         m_recentfileactions[j]->setVisible ( false );
+    for ( int i = 0; i < nfiles; ++i )
+    {
+        QString text = tr ( "&%1 %2" ).arg ( i + 1 ).arg ( QFileInfo ( files[i] ).fileName() );
+        m_recentfileactions.at ( i )->setText ( text );
+        m_recentfileactions.at ( i )->setData ( files[i] );
+        m_recentfileactions.at ( i )->setVisible ( true );
+    }
+    for ( int j = nfiles; j < maxrecentfiles; ++j )
+        m_recentfileactions[j]->setVisible ( false );
 
 }
 

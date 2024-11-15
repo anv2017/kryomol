@@ -45,7 +45,7 @@ void QMolecularTreeWidget::Init()
     if ( e )
     {
         QString elabel="E";
-        switch( e.Unity() )
+        switch( e.Units() )
         {
         case Energy::HARTREE:
             elabel+="(a.u.)";

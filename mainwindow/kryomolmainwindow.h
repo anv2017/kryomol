@@ -55,7 +55,7 @@ public slots:
     void OnOpenFile(QString filename);
 
 protected:
-    void UpdateRecentFiles();
+    void UpdateRecentFiles(QString filename=QString());
 private:
     void OpenFile();
     void OpenUVFolder(QString foldername);

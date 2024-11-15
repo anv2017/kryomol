@@ -62,7 +62,7 @@ QFreqWidget::QFreqWidget(kryomol::World* world,const QString& file,QWidget* pare
     m_freqtable->setSortingEnabled(true);
     m_freqtable->setCopyHorizontalHeader(true);
     m_freqtable->verticalHeader()->hide();
-    QVBoxLayout* tablelay=new QVBoxLayout(_freqFrame);
+    QVBoxLayout* tablelay=new QVBoxLayout(_freqBox);
     tablelay->addWidget(m_freqtable);
 
     //QHeaderView* vheader= m_freqtable->verticalHeader();
@@ -95,6 +95,18 @@ QFreqWidget::~QFreqWidget()
 //Init table for conformer with index fidx
 void QFreqWidget::InitTable(size_t fidx)
 {
+    Q_ASSERT(m_world->CurrentMolecule());
+    QString title;
+    if ( m_world->CurrentMolecule()->Frames().size() == 1 )
+    {
+        title="";
+    }
+    else
+    {
+        title=QString::number(m_world->CurrentMolecule()->CurrentFrameIndex()+1);
+    }
+
+    _freqBox->setTitle(title);
 
     if ( m_frequencysets.empty() )
     {

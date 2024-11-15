@@ -25,50 +25,52 @@ Thermostat::~Thermostat()
 
 void Thermostat::SetPopulations(Molecule& molecule) const
 {
-  switch( m_ensamble)
-  {
-  case NVT:  //Boltzmann populations
-      std::cout << "Setting boltzmann populations" << std::endl;
-    SetBoltzmannPopulations(molecule);
-    break;
-  default:
-    std::cout << "Setting populations" << std::endl;
-    molecule.Populations()=std::vector<double>(molecule.Frames().size(),1/static_cast<double>(molecule.Frames().size()));
-    break;
-  }
+    switch( m_ensamble)
+    {
+    case NVT:  //Boltzmann populations
+        std::cout << "Setting boltzmann populations" << std::endl;
+        SetBoltzmannPopulations(molecule);
+        break;
+    default:
+        std::cout << "Setting populations" << std::endl;
+        molecule.Populations()=std::vector<double>(molecule.Frames().size(),1/static_cast<double>(molecule.Frames().size()));
+        break;
+    }
 }
 
 void Thermostat::SetBoltzmannPopulations(Molecule& molecule) const
 
 {
-  double k=1.98588e-3; //kcal/mol
+    double k=1.98588e-3; //kcal/mol
 
-  std::vector<double> pop(molecule.Frames().size());
-  std::vector<double>::iterator it;
-  std::vector<Frame>::const_iterator ft=molecule.Frames().begin();
+    std::vector<double> pop(molecule.Frames().size());
+    std::vector<double>::iterator it;
+    std::vector<Frame>::const_iterator ft=molecule.Frames().begin();
 
-  for(;ft!=molecule.Frames().end();++ft)
-  {
-      if ( !ft->PotentialEnergy() )
-      {
-          throw kryomol::Exception("Potential energy not defined");
-      }
-  }
+    for(;ft!=molecule.Frames().end();++ft)
+    {
+        if ( !ft->PotentialEnergy() )
+        {
+            throw kryomol::Exception("Potential energy not defined");
+        }
+    }
 
-  ft=molecule.Frames().begin();
-  double z=0;
-  for(it=pop.begin();it!=pop.end();++it,++ft)
-  {
+    ft=molecule.Frames().begin();
+    double fe=ft->PotentialEnergy().Value();
+    kryomol::Energy::unit u=ft->PotentialEnergy().Units();
+    double kb=kryomol::Energy::Kb(u);
+    double z=0;
+    for(it=pop.begin();it!=pop.end();++it,++ft)
+    {
+        double e= ft->PotentialEnergy().Value();
+        (*it)=exp( -(e-fe)/(kb*m_temperature));
+        z+=(*it);
+    }
 
-    double e= ft->PotentialEnergy().Value();
-    (*it)=exp( -e/(k*m_temperature));
-    z+=(*it);
-  }
-
-  for(it=pop.begin();it!=pop.end();++it)
-  {
-    (*it)/=z;
-  }
-  molecule.Populations()=pop;
+    for(it=pop.begin();it!=pop.end();++it)
+    {
+        (*it)/=z;
+    }
+    molecule.Populations()=pop;
 
 }

@@ -106,7 +106,6 @@ void QJobUVWidget::OnShowUVSpectrum ( bool bshow )
     this->addDockWidget(Qt::BottomDockWidgetArea,irdock);
         //irdock->setAllowedAreas(Qt::BottomDockWidgetArea);
     m_irwidget = new QIRWidget(this->World(),this);
-    m_irwidget->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Preferred);
     irdock->setWidget(m_irwidget);
 
 
