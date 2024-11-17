@@ -71,6 +71,7 @@ private:
     void ParseGaussian();
     bool isGaussianFile();
     bool isGaussianFile(QString file);
+    kryomol::World* GetCurrentWorld();
 
 signals:
     void ParseringFinished();

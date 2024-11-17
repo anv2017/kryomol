@@ -1908,38 +1908,38 @@ void KryoMolMainWindow::SetBondOrders()
 
 // //-------------- Functions for Selecting Frame:
 
+
+kryomol::World* KryoMolMainWindow::GetCurrentWorld()
+{
+    QTabWidget* t=dynamic_cast<QTabWidget*>(m_tabwidget->currentWidget());
+    Q_ASSERT(t);
+    QJobWidget* jb=dynamic_cast<QJobWidget*>(t->currentWidget());
+    Q_ASSERT(jb);
+    return jb->World();
+}
 void KryoMolMainWindow::OnFirstFrame()
 {
-    //     m_world->SelectFrame ( 0 );
+    kryomol::World* w=this->GetCurrentWorld();
+    if ( w )  w->SelectFrame ( 0 );
 }
 
 void KryoMolMainWindow::OnLastFrame()
 {
-    // if ( m_world->CurrentMolecule() )
-    //     m_world->SelectFrame ( m_world->CurrentMolecule()->Frames().size()-1 );
+    kryomol::World* w=this->GetCurrentWorld();
+    if ( w )  w->SelectFrame ( w->CurrentMolecule()->Frames().size()-1 );
 }
 
 void KryoMolMainWindow::OnNextFrame()
 {
-    // if ( m_world->CurrentMolecule() )
-    // {
-    //     if ( m_world->CurrentMolecule()->CurrentFrameIndex() < m_world->CurrentMolecule()->Frames().size() )
-    //     {
-    //         m_world->SelectFrame ( m_world->CurrentMolecule()->CurrentFrameIndex() +1 );
-    //     }
-    // }
+    kryomol::World* w=this->GetCurrentWorld();
+    if ( w )  w->SelectFrame ( w->CurrentMolecule()->CurrentFrameIndex() +1  );
 }
 
 void KryoMolMainWindow::OnPreviousFrame()
 {
-    // //take care of unsigned size_t
-    // if ( m_world->CurrentMolecule() )
-    // {
-    //     if ( m_world->CurrentMolecule()->CurrentFrameIndex() > 0 )
-    //     {
-    //         m_world->SelectFrame ( m_world->CurrentMolecule()->CurrentFrameIndex()-1 );
-    //     }
-    // }
+    kryomol::World* w=this->GetCurrentWorld();
+    if ( w )  w->SelectFrame ( w->CurrentMolecule()->CurrentFrameIndex() -1  );
+
 }
 
 //-------------- Functions for Measuring Distance, Angles and Dihedrals:
