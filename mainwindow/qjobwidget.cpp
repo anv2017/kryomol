@@ -12,6 +12,7 @@ the Free Software Foundation version 2 of the License.
 #include "qjobwidget.h"
 
 #include "world.h"
+#include "glvisor.h"
 
 #include "qpdbcontrol.h"
 #include "qmeasurewidget.h"
@@ -80,9 +81,20 @@ void QJobWidget::InitCommonWidgets()
     m_tabwidget->addTab(conf,"Conformers");
 
     m_tabwidget->addTab(new QPDBControl(m_tabwidget),"PDB Info");
-    m_tabwidget->addTab(new QMeasureWidget(m_tabwidget),"Measure");
+    QMeasureWidget* mw=new QMeasureWidget(m_tabwidget);
+    m_tabwidget->addTab(mw,"Measure");
     m_tabwidget->addTab(new QOrbitalWidget(m_tabwidget),"Density");
-   // m_tabwidget->addTab(new QMolecularListControl(m_tabwidget),"Conformers");
+    //Add measure connections
+    //CONNECTIONS
+    connect( m_world->Visor(), SIGNAL ( distance ( QString& ) ), mw, SLOT ( OnWriteDistance ( QString& ) ) );
+    //connect( m_world->Visor(), SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
+    //connect( m_world->Visor(), SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
+    //connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );*/
+    //connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
+    //connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
+    //connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
+    //connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
+    //connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
 
 
 }

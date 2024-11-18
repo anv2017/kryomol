@@ -150,26 +150,6 @@ void KryoMolMainWindow::Init()
     m_tabwidget = new QTabWidget (this);
     this->setCentralWidget(m_tabwidget);
 
-    //Initially only the visor is showed
-    /*m_uistack->hide();
-    m_pdbcontrol->hide();
-    m_mdcontrol->hide();
-    m_measures->hide();
-    m_orbitals->hide();*/
-
-
-    //CONNECTIONS
-    /*connect( m_world->Visor(), SIGNAL ( distance ( QString& ) ), m_measures, SLOT ( OnWriteDistance ( QString& ) ) );
-    connect( m_world->Visor(), SIGNAL ( angle ( QString& ) ), m_measures, SLOT ( OnWriteAngle ( QString& ) ) );
-    connect( m_world->Visor(), SIGNAL ( dihedral ( QString& ) ), m_measures, SLOT ( OnWriteDihedral ( QString& ) ) );
-    connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateMeasures ( size_t )) );*/
-    //connect(m_measures,SIGNAL(clearAll()),m_world->Visor(), SLOT(OnClearMeasures()));
-    //connect(m_measures,SIGNAL(distanceChange(int)),m_world->Visor(),SLOT(OnDistanceChange(int)));
-    //connect(m_measures,SIGNAL(angleChange(int)),m_world->Visor(),SLOT(OnAngleChange(int)));
-    //connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
-    //connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
-
-
     //Construct the tool bars
 
     //----------------- Main Tool Bar -------------------
@@ -1952,7 +1932,8 @@ void KryoMolMainWindow::OnNoneSelection()
 
 void KryoMolMainWindow::OnMeasureDistances()
 {
-    // m_world->Visor()->OnMeasureDistances();
+    kryomol::World* w=this->GetCurrentWorld();
+    if ( w ) w->Visor()->OnMeasureDistances();
 
 }
 
