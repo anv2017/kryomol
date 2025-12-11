@@ -1,8 +1,8 @@
-#ifndef ARRAYS_DEFINES_H
-#define ARRAYS_DEFINES_H
+#ifndef ARRAY_DEFINES_H
+#define ARRAY_DEFINES_H
 
-#define WITH_VECLIB
-#include <Accelerate/Accelerate.h>
+#define WITH_LAPACK
+#include "qryomollapack.h"
 #define COLUMN_MAJOR
 
 #endif 

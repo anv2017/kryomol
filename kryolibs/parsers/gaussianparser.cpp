@@ -222,6 +222,11 @@ std::vector<JobHeader>& GaussianParser::Jobs()
                     tjob= nmr;
                     bfound=true;
                 }
+                if ( line.find ( "ADMP",0 ) != std::string::npos )
+                {
+                    tjob= dyn;
+                    bfound=true;
+                }
                 if ( bfound ) break;
                 //pos=m_file->tellg();
                 std::getline ( *m_file,line );

@@ -96,5 +96,37 @@ void QJobWidget::InitCommonWidgets()
     //connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
     //connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
 
+    // if ( hasdensity )
+    // {
+    //     m_orbitals = new QOrbitalWidget(this);
+    //     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
+    //     connect(m_world, SIGNAL ( currentFrame ( size_t ) ), this, SLOT ( OnUpdateFrameForOrbitals ( size_t )) );
+
+
+
+    //     connect(m_orbitals,SIGNAL(drawDensity(bool)),this,SLOT(OnDrawDensity(bool)));
+    //     connect(this,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+    //     if ( hasorbitals )
+    //     {
+    //         m_orbitals->SetBeta(m_hasalphabeta);
+    //         uvwidget->SetBeta(m_hasalphabeta);
+    //         m_orbitals->ListOrbitals();
+
+    //         uvwidget->SetCheckableTransitionChanges();
+
+    //         connect(m_orbitals,SIGNAL(offtransitions(bool)),uvwidget,SLOT(OffShowTransitionChanges(bool)));
+    //         connect(m_orbitals,SIGNAL(transparenceChange(float)),m_world->Visor(),SLOT(OnTransparenceChange(float)));
+    //         connect(uvwidget,SIGNAL(showtransition(int)),m_orbitals,SLOT(OnShowTransitionChange(int)));
+    //         connect(uvwidget,SIGNAL(showdensities(int)),m_orbitals,SLOT(OnShowDensityChange(int)));
+    //         connect(uvwidget,SIGNAL(offshowtransitions(bool)),m_orbitals,SLOT(OffButtons(bool)));
+    //     }
+
+    //     //q->addWidget(m_orbitals);
+
+    //     //m_measures->hide();
+    //     //m_orbitals->hide();
+    // }
+
 
 }

@@ -754,8 +754,8 @@ void OrcaParser::ParseUVLengthBlock(std::vector<Spectralline>& lines)
         {
 
             Spectralline sline;
-            sline.x=std::atof( token.at(2).c_str());
-            sline.y0=std::atof(token.at(3).c_str());
+            sline.x=std::stof( *(token.rbegin()+5) );
+            sline.y0=std::stof( *(token.rbegin()+4) );
             lines.push_back(sline);
         }
         else break;
@@ -769,17 +769,17 @@ void OrcaParser::ParseUVVelocityBlock(std::vector<Spectralline>& lines)
     while(std::getline(*m_file,line))
     {
         StringTokenizer token(line," \t");
-        if ( token.size() >= 8 )
+        if ( token.size() >= 7 )
         {
 
-            spt->SetRotatoryStrengthVelocity(std::atof(token.at(3).c_str()));
+            spt->SetRotatoryStrengthVelocity(std::stof(*(token.rbegin()+3)));
             ++spt;
         }
         else break;
     }
 }
 
-void OrcaParser::ParseCDBlock(std::vector<Spectralline>& lines)
+void OrcaParser::ParseCDLengthBlock(std::vector<Spectralline>& lines)
 {
     std::string line;
     std::vector<Spectralline>::iterator spt=lines.begin();
@@ -788,7 +788,24 @@ void OrcaParser::ParseCDBlock(std::vector<Spectralline>& lines)
         StringTokenizer token(line," \t");
         if ( token.size() >= 7 )
         {
-            spt->SetRotatoryStrengthLength(std::atof(token.at(3).c_str()));
+            spt->SetRotatoryStrengthLength(std::stof(*(token.rbegin()+3)));
+            ++spt;
+        }
+        else break;
+    }
+
+}
+
+void OrcaParser::ParseCDVelocityBlock(std::vector<Spectralline>& lines)
+{
+    std::string line;
+    std::vector<Spectralline>::iterator spt=lines.begin();
+    while(std::getline(*m_file,line))
+    {
+        StringTokenizer token(line," \t");
+        if ( token.size() >= 7 )
+        {
+            spt->SetRotatoryStrengthVelocity(std::stof(*(token.rbegin()+3)));
             ++spt;
         }
         else break;
@@ -822,6 +839,9 @@ bool OrcaParser::ParseUV ( std::streampos pos )
     std::string line;
     Molecule& molecule=Molecules()->back();
     std::vector<Spectralline>& lines=molecule.Frames().back().GetSpectralLines();
+
+    //There is a bug in Orca6 ? so only CD SPECTRUM appears for the lenght formalism
+    bool cdlengthdone=false;
     while ( std::getline ( *m_file,line ) )
     {
         if ( line.find("ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS") != std::string::npos )
@@ -844,14 +864,26 @@ bool OrcaParser::ParseUV ( std::streampos pos )
             ParseUVelocityBlock(lines);
         }*/
 
-        if ( line.find("CD SPECTRUM") != std::string::npos )
+        if ( line.find("CD SPECTRUM") != std::string::npos && cdlengthdone == false)
         {
             //skip four lines
             for (int i=0;i<4;++i)
             {
                 std::getline(*m_file,line);
             }
-            ParseCDBlock(lines);
+            ParseCDLengthBlock(lines);
+            cdlengthdone=true;
+        }
+
+
+        if ( line.find("CD SPECTRUM VIA TRANSITION VELOCITY DIPOLE MOMENTS") != std::string::npos )
+        {
+            //skip four lines
+            for (int i=0;i<4;++i)
+            {
+                std::getline(*m_file,line);
+            }
+            ParseCDVelocityBlock(lines);
         }
 
 
@@ -859,6 +891,7 @@ bool OrcaParser::ParseUV ( std::streampos pos )
 
     m_file->clear();
     m_file->seekg ( pos,std::ios::beg );
+    //I think this was probably a Orca4 thing for TD-DFT and it is no longer present in Orca5 or Orca6 save for %mdci computations
     while(std::getline(*m_file,line))
     {
         if ( line.find("CALCULATED SOLVENT SHIFTS") != std::string::npos )

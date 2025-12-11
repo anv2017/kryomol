@@ -18,6 +18,7 @@ the Free Software Foundation version 2 of the License.
 #include "renderorbitals.h"
 #include "density.h"
 #include "qplotspectrogram.h"
+#include "world.h"
 
 
 class QButtonGroup;
@@ -29,7 +30,7 @@ class QOrbitalWidget : public QWidget, private Ui::QOrbitalWidgetBase
 public:
     explicit QOrbitalWidget(QWidget *parent = 0);
     ~QOrbitalWidget();
-
+    void SetWorld(kryomol::World* w);
     void Init();
     void ListOrbitals();
     void SetHomo(int h) {m_homo=h;}
@@ -44,7 +45,8 @@ signals:
     void drawDensity(bool );
     void offtransitions(bool );
     void transparenceChange(float );
-
+public slots:
+    void OnSetFrame(size_t frame);
 private slots:
     void OnIsovalueSliderChange(double );
     void OnTransparenceSliderChange(int );
@@ -80,6 +82,7 @@ private:
     double m_threshold;
     kryomol::RenderOrbitals m_render;
     QPlotSpectrogram *m_plotspectrogram;
+    kryomol::World* m_world;
 
 };
 

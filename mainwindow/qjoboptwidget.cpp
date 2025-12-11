@@ -22,7 +22,7 @@ the Free Software Foundation version 2 of the License.
 
 QJobOptWidget::QJobOptWidget(QWidget* parent ) : QJobWidget (parent)
 {
-        m_world = new kryomol::World(this,kryomol::World::optvisor);
+    m_world = new kryomol::World(this,kryomol::World::optvisor);
 }
 
 QJobOptWidget::~QJobOptWidget()

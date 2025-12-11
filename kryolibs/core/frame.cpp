@@ -30,7 +30,7 @@ struct fcolor {
 class kryomol::FramePrivate
 {
 public:
-    FramePrivate() {}
+    FramePrivate()  : m_hasorbitals(false) {}
     ~FramePrivate() {}
     std::vector<Bond> m_bonds;
     std::vector<Coordinate> m_xyz;
@@ -62,6 +62,7 @@ public:
     std::vector<RenderDensity> m_negativedensity;
     std::vector< std::vector<TransitionChange> > m_transitionchanges;
     fcolor m_color;
+    bool m_hasorbitals;
 };
 
 using namespace kryomol;
@@ -602,3 +603,13 @@ std::vector<Frequency> &Frame::GetFrequencies() { return m_private->m_modes; }
 const std::vector<Frequency>& Frame::GetFrequencies() const { return m_private->m_modes; }
 std::vector<Spectralline>& Frame::GetSpectralLines() { return m_private->m_spectrallines; }
 const std::vector<Spectralline>& Frame::GetSpectralLines() const { return m_private->m_spectrallines; }
+
+void Frame::SetHasOrbitals(bool hasorbitals)
+{
+    m_private->m_hasorbitals=hasorbitals;
+}
+
+bool Frame::HasOrbitals() const
+{
+    return m_private->m_hasorbitals;
+}

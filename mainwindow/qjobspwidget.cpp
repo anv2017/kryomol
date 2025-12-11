@@ -25,15 +25,9 @@ QJobSpWidget::~QJobSpWidget()
 
 void QJobSpWidget::InitWidgets()
 {
-    World()->Visor()->Initialize();
+    this->World()->Initialize();
+    this->setCentralWidget(m_world->Visor());
     InitCommonWidgets();
-
-    for(auto it=m_dockwidgets.begin()+1;it!=m_dockwidgets.end();++it)
-    {
-        this->tabifyDockWidget(m_dockwidgets.front(),*it);
-    }
-
-
 }
 
 

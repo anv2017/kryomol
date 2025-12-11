@@ -918,11 +918,57 @@ void KryoMolMainWindow::OnOpenFile(QString fname)
             w->InitWidgets();
 
         }
+
+        if ( j.type == kryomol::dyn )
+        {
+            QJobDynWidget* w = new QJobDynWidget(m_tabwidget);
+            qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
+            qparser->SetMolecules( &w->World()->Molecules() );
+            qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
+
+            try {
+                qparser->Parse(j.pos);
+                qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
+                qDebug() << "nframes=" << w->World()->Molecules().back().Frames().size() << endl;
+            }
+            catch(...)
+            {
+                delete w;
+                return;
+            }
+            ctab->addTab(w,"Dyn");
+            SetBondOrders();
+            w->InitWidgets();
+        }
+
+        if ( j.type == kryomol::singlepoint )
+        {
+            QJobSpWidget* w = new QJobSpWidget(m_tabwidget);
+            qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
+            qparser->SetMolecules( &w->World()->Molecules() );
+            qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
+
+            try {
+                qparser->Parse(j.pos);
+                qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
+                qDebug() << "nframes=" << w->World()->Molecules().back().Frames().size() << endl;
+            }
+            catch(...)
+            {
+                delete w;
+                return;
+            }
+            ctab->addTab(w,"Single Point");
+            SetBondOrders();
+            w->InitWidgets();
+        }
+
+
     }
     delete qparser;
 
     //Should this work ?
-    SetBondOrders();
+    //SetBondOrders();
     //juv->InitWidgets();
     //this->InitWidgets(kryomol::uv,m_hasdensity,m_hasorbitals);
 }
@@ -987,6 +1033,7 @@ void KryoMolMainWindow::OpenUVFolder(QString foldername)
         kryomol::ParserFactory factory(f.toStdString().c_str());
 #endif
         kryomol::Parser* qparser=factory.BuildParser();
+        if ( qparser == nullptr ) continue;
         if ( !factory.existDensity() )
         {
             m_hasdensity=false;
@@ -1017,6 +1064,8 @@ void KryoMolMainWindow::OpenUVFolder(QString foldername)
                 {
                     world->Molecules().back().Frames().push_back(mol.back().Frames().back());
                 }
+
+                world->Molecules().back().Frames().back().SetHasOrbitals(m_hasorbitals);
 
             }
         }
@@ -2247,87 +2296,88 @@ void KryoMolMainWindow::OnExportCPMD()
 //}
 void KryoMolMainWindow::OnExportGaussian ( bool withhessian )
 {
-    // QClipboard* c=QApplication::clipboard();
-    // if ( c == NULL )
-    // {
-    //     std::cerr << "Could not open clipboard";
-    // }
+    QClipboard* c=QApplication::clipboard();
+    if ( c == NULL )
+    {
+        std::cerr << "Could not open clipboard";
+    }
+    kryomol::World* world=this->GetCurrentWorld();
 
-    // std::stringstream s;
-    // s << 0 <<"," << 1 << std::endl;
-    // if ( !withhessian )
-    // {
-    //     std::cout << "Export Gaussian geometry" << std::endl;
+    std::stringstream s;
+    s << 0 <<"," << 1 << std::endl;
+    if ( !withhessian )
+    {
+        std::cout << "Export Gaussian geometry" << std::endl;
 
-    //     s << m_world->CurrentMolecule()->CurrentFrame();
-    //     s << std::endl;
+        s << world->CurrentMolecule()->CurrentFrame();
+        s << std::endl;
 
-    //     c->setText ( s.str().c_str() );
+        c->setText ( s.str().c_str() );
 
-    //     return;
-    // }
+        return;
+    }
 
-    // std::cout << "Export Gaussian geometry and forces" << std::endl;
+    std::cout << "Export Gaussian geometry and forces" << std::endl;
 
-    // std::vector<Atom>::iterator it;
-    // std::vector<Coordinate>::const_iterator ct=m_world->CurrentMolecule()->InputOrientation().begin();
-    // for ( it=m_world->CurrentMolecule()->Atoms().begin();it!=m_world->CurrentMolecule()->Atoms().end();++it,++ct )
-    // {
+    std::vector<Atom>::iterator it;
+    std::vector<Coordinate>::const_iterator ct=world->CurrentMolecule()->InputOrientation().begin();
+    for ( it=world->CurrentMolecule()->Atoms().begin();it!=world->CurrentMolecule()->Atoms().end();++it,++ct )
+    {
 
-    //     s << std::setiosflags ( std::ios::fixed ) << std::setw ( 3 ) << std::setiosflags ( std::ios::left ) << it->Symbol()
-    //       << std::setw ( 10 )  << std::resetiosflags ( std::ios::left )
-    //       << std::setiosflags ( std::ios::right ) << std::setiosflags ( std::ios::fixed ) << std::setprecision ( 6 )
-    //       << ct->x() <<
-    //          std::setw ( 10 ) <<ct->y()
-    //       << std::setw ( 10 ) << ct->z()
-    //       << std::resetiosflags ( std::ios::right ) << std::endl;
-    // }
-    // s << std::endl << std::endl;
-    // s << std::resetiosflags ( std::ios::fixed );
+        s << std::setiosflags ( std::ios::fixed ) << std::setw ( 3 ) << std::setiosflags ( std::ios::left ) << it->Symbol()
+          << std::setw ( 10 )  << std::resetiosflags ( std::ios::left )
+          << std::setiosflags ( std::ios::right ) << std::setiosflags ( std::ios::fixed ) << std::setprecision ( 6 )
+          << ct->x() <<
+             std::setw ( 10 ) <<ct->y()
+          << std::setw ( 10 ) << ct->z()
+          << std::resetiosflags ( std::ios::right ) << std::endl;
+    }
+    s << std::endl << std::endl;
+    s << std::resetiosflags ( std::ios::fixed );
 
-    // s << std::setiosflags ( std::ios::fixed );
-    // s << std::setiosflags ( std::ios::uppercase ) << std::setprecision ( 8 );
+    s << std::setiosflags ( std::ios::fixed );
+    s << std::setiosflags ( std::ios::uppercase ) << std::setprecision ( 8 );
 
 
-    // D1Array<double>& forces=m_world->CurrentMolecule()->CurrentFrame().GetForces();
-    // D2Array<double>& hessian=m_world->CurrentMolecule()->CurrentFrame().GetHessian();
+    D1Array<double>& forces=world->CurrentMolecule()->CurrentFrame().GetForces();
+    D2Array<double>& hessian=world->CurrentMolecule()->CurrentFrame().GetHessian();
 
-    // if ( forces.size() )
-    // {
-    //     size_t i=0;
-    //     int j;
-    //     while ( i < forces.size() )
-    //     {
-    //         for ( j=0;j<6;++j )
-    //         {
-    //             s << std::setw ( 12 )  << forces ( i++ );
-    //             if ( i == forces.size() )
-    //                 break;
-    //         }
-    //         s << std::endl;
+    if ( forces.size() )
+    {
+        size_t i=0;
+        int j;
+        while ( i < forces.size() )
+        {
+            for ( j=0;j<6;++j )
+            {
+                s << std::setw ( 12 )  << forces ( i++ );
+                if ( i == forces.size() )
+                    break;
+            }
+            s << std::endl;
 
-    //     }
+        }
 
-    // }
+    }
 
-    // if ( hessian.NRows() )
-    // {
-    //     size_t i,j;
-    //     short k=0;
-    //     for ( i=0;i<hessian.NRows();i++ )
-    //         for ( j=0;j<=i;j++ )
-    //         {
-    //             s << std::setw ( 12 ) << hessian ( i,j );
-    //             if ( ++k > 5 )
-    //             {
-    //                 s << std::endl;
-    //                 k=0;
-    //             }
-    //         }
+    if ( hessian.NRows() )
+    {
+        size_t i,j;
+        short k=0;
+        for ( i=0;i<hessian.NRows();i++ )
+            for ( j=0;j<=i;j++ )
+            {
+                s << std::setw ( 12 ) << hessian ( i,j );
+                if ( ++k > 5 )
+                {
+                    s << std::endl;
+                    k=0;
+                }
+            }
 
-    // }
-    // s << std::endl;
-    // c->setText ( s.str().c_str() );
+    }
+    s << std::endl;
+    c->setText ( s.str().c_str() );
 
 }
 

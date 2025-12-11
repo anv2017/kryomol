@@ -44,7 +44,8 @@ private:
   void GetGradientForFrame();
   void ParseUVLengthBlock(std::vector<Spectralline>& lines);
   void ParseUVVelocityBlock(std::vector<Spectralline>& lines);
-  void ParseCDBlock(std::vector<Spectralline>& lines);
+  void ParseCDLengthBlock(std::vector<Spectralline>& lines);
+  void ParseCDVelocityBlock(std::vector<Spectralline>& lines);
   void ParseSolventShiftBlock(std::vector<Spectralline>& lines);
   bool GetFrequencies();
   bool GetNormalModes();

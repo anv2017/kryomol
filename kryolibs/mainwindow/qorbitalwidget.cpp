@@ -15,6 +15,10 @@ the Free Software Foundation version 2 of the License.
 #include "qnumlistviewitem.h"
 #include "density.h"
 #include "qplotspectrogram.h"
+#include "renderorbitals.h"
+#include "molecule.h"
+#include "frame.h"
+
 #include "QButtonGroup"
 #include <QTime>
 
@@ -37,6 +41,7 @@ QOrbitalWidget::~QOrbitalWidget()
 
 void QOrbitalWidget::Init()
 {
+    m_world=nullptr;
     m_bshowhomo = false;
     m_bshowlumo = false;
     m_bshowtotaldensity = false;
@@ -706,4 +711,15 @@ void QOrbitalWidget::HideAllButtons()
     _listOrbitals->clearSelection();
     if (m_beta)
         _listOrbitals2->clearSelection();
+}
+
+void QOrbitalWidget::OnSetFrame(size_t frame)
+{
+    Q_ASSERT(m_world);
+    if ( frame < 0 || frame >= m_world->Molecules().back().Frames().size() ) return;
+    kryomol::Frame& fr=m_world->Molecules().back().Frames()[frame];
+    if ( fr.HasOrbitals() )
+    {
+        this->SetRenderOrbitals(kryomol::RenderOrbitals(m_world->Molecules().back().Frames()[frame]));
+    }
 }

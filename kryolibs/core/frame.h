@@ -143,6 +143,8 @@ namespace kryomol
       void SetElectronicDensityData(const ElectronicDensity& electronicdensity);
       void SetPositiveDensity(const std::vector<RenderDensity>& positivedensity);
       void SetNegativeDensity(const std::vector<RenderDensity>& negativedensity);
+      void SetHasOrbitals(bool hasorbitals);
+      bool HasOrbitals() const;
 
       double GetEnergy() const;
       double GetRMSForce() const ;

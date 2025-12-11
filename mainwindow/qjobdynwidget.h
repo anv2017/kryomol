@@ -8,7 +8,7 @@ class QJobDynWidget : public QJobWidget
 {
     Q_OBJECT
 public:
-    explicit QJobDynWidget(QWidget *parent = nullptr);
+    explicit QJobDynWidget(QWidget *parent = 0);
     void InitWidgets();
 
 
