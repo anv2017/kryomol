@@ -502,6 +502,8 @@ std::vector<JobHeader>& OrcaParser::Jobs()
         //if ( line.find("*     ORCA property calculations      *") != std::string::npos )
         if ( line.find("* Single Point Calculation *") != std::string::npos ||
             line.find("*     ORCA property calculations      *") != std::string::npos ||
+            /** Orca 6*/
+            line.find("ORCA PROPERTY CALCULATIONS") != std::string::npos ||
             line.find("Energy+Gradient Calculation")!= std::string::npos )
         {
             pos=m_file->tellg();
@@ -534,7 +536,10 @@ std::vector<JobHeader>& OrcaParser::Jobs()
                     bfound=true;
                 }
 
-                if ( line.find("ORCA NUMERICAL FREQUENCIES") != std::string::npos || line.find("ORCA SCF HESSIAN") != std::string::npos )
+                if ( line.find("ORCA NUMERICAL FREQUENCIES") != std::string::npos ||
+                     line.find("ORCA SCF HESSIAN") != std::string::npos ||
+                     //Orca 6.0
+                     line.find("SCF HESSIAN") != std::string::npos )
                 {
                     it->type=freq;
                     bfound=true;
