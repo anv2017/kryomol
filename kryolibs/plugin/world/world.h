@@ -58,7 +58,12 @@ namespace kryomol
       const Molecule* CurrentMolecule() const;
       Molecule* CurrentMolecule();
       size_t CurrentMoleculeIndex() const;
-
+      bool HasDensity() const;
+      bool HasOrbitals() const;
+      bool HasAlphaBetaOrbitals() const;
+      void SetHasDensity(bool b);
+      void SetHasOrbitals(bool b);
+      void SetHasAlphaBetaOrbitals(bool b);
     signals:
       /** emitted when user changes temperatue or the kind of thermodynamic ensamble*/
       void thermostatChanged();
@@ -70,6 +75,7 @@ namespace kryomol
     public slots:
       void SelectFrame ( size_t );
       void SelectMolecule ( size_t );
+      void OnShowDensity(bool b);
 
     private:
         #ifdef __GNUC__
@@ -79,6 +85,9 @@ namespace kryomol
       GLVisor* m_visor;
       std::vector<Molecule> m_molecules;
       size_t m_currentmolecule;
+      bool m_hasdensity;
+      bool m_hasorbitals;
+      bool m_hasalphabetaorbitals;
 
   };
 }

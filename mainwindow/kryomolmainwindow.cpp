@@ -860,6 +860,7 @@ void KryoMolMainWindow::OnOpenFile(QString fname)
     if ( !factory.existDensity() )
     {
         m_hasdensity=false;
+
     }
     if ( !factory.existOrbitals() )
     {
@@ -944,6 +945,9 @@ void KryoMolMainWindow::OnOpenFile(QString fname)
         if ( j.type == kryomol::singlepoint )
         {
             QJobSpWidget* w = new QJobSpWidget(m_tabwidget);
+            w->World()->SetHasDensity(m_hasdensity);
+            w->World()->SetHasOrbitals(m_hasorbitals);
+            w->World()->SetHasAlphaBetaOrbitals(m_hasalphabeta);
             qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
             qparser->SetMolecules( &w->World()->Molecules() );
             qDebug() << "nmol=" << w->World()->Molecules().size() << endl;
@@ -1047,6 +1051,10 @@ void KryoMolMainWindow::OpenUVFolder(QString foldername)
         {
             m_hasalphabeta=false;
         }
+
+        world->SetHasDensity(m_hasdensity);
+        world->SetHasOrbitals(m_hasorbitals);
+        world->SetHasAlphaBetaOrbitals(m_hasalphabeta);
 
         for(const auto& j : qparser->Jobs() )
         {

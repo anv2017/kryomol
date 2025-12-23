@@ -18,6 +18,7 @@ the Free Software Foundation version 2 of the License.
 #include "qmeasurewidget.h"
 #include "qorbitalwidget.h"
 #include "qmolecularlistcontrol.h"
+#include "renderorbitals.h"
 
 #include <QDockWidget>
 
@@ -83,7 +84,7 @@ void QJobWidget::InitCommonWidgets()
     m_tabwidget->addTab(new QPDBControl(m_tabwidget),"PDB Info");
     QMeasureWidget* mw=new QMeasureWidget(m_tabwidget);
     m_tabwidget->addTab(mw,"Measure");
-    m_tabwidget->addTab(new QOrbitalWidget(m_tabwidget),"Density");
+    //m_tabwidget->addTab(new QOrbitalWidget(m_tabwidget),"Density");
     //Add measure connections
     //CONNECTIONS
     connect( m_world->Visor(), SIGNAL ( distance ( QString& ) ), mw, SLOT ( OnWriteDistance ( QString& ) ) );
@@ -96,7 +97,28 @@ void QJobWidget::InitCommonWidgets()
     //connect(m_measures,SIGNAL(dihedralChange(int)),m_world->Visor(),SLOT(OnDihedralChange(int)));
     //connect(m_measures, SIGNAL(showDistances(bool)),m_world->Visor(),SLOT(OnShowDistances(bool)));
 
-    // if ( hasdensity )
+    if ( m_world->HasDensity() )
+    {
+        QOrbitalWidget* ow= new QOrbitalWidget(m_tabwidget);
+        ow->SetWorld(m_world);
+        m_tabwidget->addTab(ow,"Density");
+        ow->SetRenderOrbitals(kryomol::RenderOrbitals(m_world->Molecules().back().Frames().back()));
+        connect(m_world, SIGNAL ( currentFrame ( size_t ) ), ow, SLOT ( OnSetFrame ( size_t )) );
+        connect(ow,SIGNAL(drawDensity(bool)),ow,SLOT(OnDrawDensity(bool)));
+        connect(ow,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
+
+        if ( m_world->HasOrbitals() )
+        {
+            ow->SetBeta(m_world->HasAlphaBetaOrbitals());
+            //uvwidget->SetBeta(m_hasalphabeta);
+            ow->ListOrbitals();
+            //uvwidget->SetCheckableTransitionChanges();
+
+
+
+        }
+
+    }
     // {
     //     m_orbitals = new QOrbitalWidget(this);
     //     m_orbitals->SetRenderOrbitals(RenderOrbitals(m_world->Molecules().back().Frames().back()));
@@ -130,3 +152,4 @@ void QJobWidget::InitCommonWidgets()
 
 
 }
+

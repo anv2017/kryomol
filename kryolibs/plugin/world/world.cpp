@@ -37,9 +37,10 @@ using namespace kryomol;
       }
       \endcode
 */
-World::World ( QWidget* parent, VisorType vtype, const QGLWidget* shareWidget, Qt::WindowFlags f )
+World::World ( QWidget* parent, VisorType vtype, const QGLWidget* shareWidget, Qt::WindowFlags f ) :
+    m_hasdensity(false), m_hasorbitals(false), m_hasalphabetaorbitals(false)
 {
-    m_currentplugin=NULL;
+    m_currentplugin = nullptr;
     m_currentmolecule=0;
     switch (vtype)
     {
@@ -70,10 +71,10 @@ World::World ( QWidget* parent, VisorType vtype, const QGLWidget* shareWidget, Q
       If \a bGUI is set to true a parentless
      OpenGL visor will be also be built
 */
-World::World ( bool bGUI ) 
+World::World ( bool bGUI ) :
+        m_hasdensity(false), m_hasorbitals(false), m_hasalphabetaorbitals(false)
 {
-  ;
-  m_currentplugin=NULL;
+  m_currentplugin = nullptr;
   m_currentmolecule=0;
 
   if ( bGUI )
@@ -83,7 +84,7 @@ World::World ( bool bGUI )
   }
   else
   {
-    m_visor=NULL;
+    m_visor=nullptr;
   }
 
 }
@@ -246,3 +247,43 @@ const Plugin* World::CurrentPlugin() const
 {
   return m_currentplugin;
 }
+
+bool World::HasDensity() const
+{
+    return m_hasdensity;
+}
+
+bool World::HasOrbitals() const
+{
+    return m_hasorbitals;
+}
+
+bool World::HasAlphaBetaOrbitals() const
+{
+    return m_hasalphabetaorbitals;
+}
+
+void World::SetHasDensity(bool b)
+{
+   m_hasdensity=b;
+}
+
+void World::SetHasOrbitals(bool b)
+{
+    m_hasorbitals=b;
+}
+
+void World::SetHasAlphaBetaOrbitals(bool b)
+{
+    m_hasalphabetaorbitals=b;
+}
+
+void World::OnShowDensity(bool b)
+{
+    if ( this->Visor() )
+    {
+        this->Visor()->OnShowDensity(b);
+    }
+}
+
+

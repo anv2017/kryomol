@@ -723,3 +723,14 @@ void QOrbitalWidget::OnSetFrame(size_t frame)
         this->SetRenderOrbitals(kryomol::RenderOrbitals(m_world->Molecules().back().Frames()[frame]));
     }
 }
+
+void QOrbitalWidget::OnDrawDensity(bool b)
+{
+    if (b)
+    {
+        m_world->CurrentMolecule()->CurrentFrame().SetPositiveDensity(this->GetDensity().PositiveRenderDensityVector());
+        m_world->CurrentMolecule()->CurrentFrame().SetNegativeDensity(this->GetDensity().NegativeRenderDensityVector());
+
+    }
+    m_world->OnShowDensity(b);
+}

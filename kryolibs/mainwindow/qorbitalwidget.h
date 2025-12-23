@@ -30,7 +30,7 @@ class QOrbitalWidget : public QWidget, private Ui::QOrbitalWidgetBase
 public:
     explicit QOrbitalWidget(QWidget *parent = 0);
     ~QOrbitalWidget();
-    void SetWorld(kryomol::World* w);
+    void SetWorld(kryomol::World* w) { m_world=w; }
     void Init();
     void ListOrbitals();
     void SetHomo(int h) {m_homo=h;}
@@ -64,6 +64,7 @@ private slots:
     void OnChangeAxisPlane(bool );
     void OnChangeAxisValue(double );
     void OffButtons(bool );
+    void OnDrawDensity(bool );
 
 private:    
     bool m_beta;
