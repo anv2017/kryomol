@@ -27,6 +27,7 @@ class World;
 class QDockWidget;
 class QTabWidget;
 
+class QOrbitalWidget;
 class QJobWidget : public QMainWindow
 {
 

@@ -24,6 +24,7 @@ the Free Software Foundation version 2 of the License.
 #include "kryovisoroptical.h"
 
 #include <QDockWidget>
+#include "qorbitalwidget.h"
 
 QJobUVWidget::QJobUVWidget(const QString& file, QWidget* parent ) : QJobWidget (parent),
     m_file (file), m_irwidget(nullptr)
@@ -85,6 +86,24 @@ void QJobUVWidget::InitWidgets()
     m_uvwidget->InitTable(World()->CurrentMolecule()->CurrentFrameIndex());
 
     connect(World(),SIGNAL(currentFrame(size_t)),this,SLOT(OnFrameChanged(size_t)));
+
+    if ( m_world->HasOrbitals() )
+    {
+       m_uvwidget->SetCheckableTransitionChanges();
+
+       QOrbitalWidget* ow=nullptr;
+       for(int i=0;i<m_tabwidget->count();++i)
+       {
+           ow=dynamic_cast<QOrbitalWidget*>(m_tabwidget->widget(i));
+           if ( ow ) break;
+
+       }
+       if ( ow )
+       {
+       connect(m_uvwidget,SIGNAL(showdensities(int)),ow,SLOT(OnShowDensityChange(int)));
+       connect(m_uvwidget,SIGNAL(showtransition(int)),ow,SLOT(OnShowTransitionChange(int)));
+       }
+    }
 
 
 
