@@ -713,14 +713,32 @@ void QOrbitalWidget::HideAllButtons()
         _listOrbitals2->clearSelection();
 }
 
+#include <QMessageBox>
 void QOrbitalWidget::OnSetFrame(size_t frame)
 {
     Q_ASSERT(m_world);
     if ( frame < 0 || frame >= m_world->Molecules().back().Frames().size() ) return;
+    QMessageBox::information(nullptr,"title","frame: "+QString::number(frame+1));
     kryomol::Frame& fr=m_world->Molecules().back().Frames()[frame];
     if ( fr.HasOrbitals() )
     {
-        this->SetRenderOrbitals(kryomol::RenderOrbitals(m_world->Molecules().back().Frames()[frame]));
+        this->ListOrbitals();
+        m_render = kryomol::RenderOrbitals(m_world->Molecules().back().Frames()[frame]);
+
+
+        if (m_orbital > 0)
+        {
+            if (m_beta)
+                _listOrbitals2->clearSelection();
+
+            disconnect(_listOrbitals, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),this,SLOT(OnOrbitalChange(QTreeWidgetItem*)));
+            _listOrbitals->clearSelection();
+            _listOrbitals->setCurrentItem(_listOrbitals->topLevelItem(m_orbital-1));
+            connect(_listOrbitals, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),this,SLOT(OnOrbitalChange(QTreeWidgetItem*)));
+
+            m_render.ShowMolecularOrbital(m_orbital-1);
+            m_bonshow = true;
+        }
     }
 }
 

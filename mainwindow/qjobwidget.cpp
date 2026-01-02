@@ -102,7 +102,8 @@ void QJobWidget::InitCommonWidgets()
         QOrbitalWidget* ow= new QOrbitalWidget(m_tabwidget);
         ow->SetWorld(m_world);
         m_tabwidget->addTab(ow,"Density");
-        ow->SetRenderOrbitals(kryomol::RenderOrbitals(m_world->Molecules().back().Frames().back()));
+        ow->SetRenderOrbitals(kryomol::RenderOrbitals(
+                                  m_world->CurrentMolecule()->CurrentFrame()));
         connect(m_world, SIGNAL ( currentFrame ( size_t ) ), ow, SLOT ( OnSetFrame ( size_t )) );
         connect(ow,SIGNAL(drawDensity(bool)),ow,SLOT(OnDrawDensity(bool)));
         connect(ow,SIGNAL(showDensity(bool)),m_world->Visor(),SLOT(OnShowDensity(bool)));
