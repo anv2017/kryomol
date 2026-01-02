@@ -444,6 +444,7 @@ bool OrcaParser::GetOrbitalData()
             ft->OrbitalsData().SetBasisCenters(basis);
             ft->OrbitalsData().SetCoefficients(matrix);
             ft->OrbitalsData().SetEigenvalues(eigenvalues);
+            ft->OrbitalsData().SetOccupations(occupations);
             b = true;
 
             ++pt;
