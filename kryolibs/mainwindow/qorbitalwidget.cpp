@@ -713,13 +713,12 @@ void QOrbitalWidget::HideAllButtons()
         _listOrbitals2->clearSelection();
 }
 
-#include <QMessageBox>
 void QOrbitalWidget::OnSetFrame(size_t frame)
 {
     Q_ASSERT(m_world);
     if ( frame < 0 || frame >= m_world->Molecules().back().Frames().size() ) return;
-    QMessageBox::information(nullptr,"title","frame: "+QString::number(frame+1)
-                             +"\n"+"orbital: "+QString::number(m_orbital));
+    /*QMessageBox::information(nullptr,"title","frame: "+QString::number(frame+1)
+                             +"\n"+"orbital: "+QString::number(m_orbital));*/
     kryomol::Frame& fr=m_world->Molecules().back().Frames()[frame];
     if ( fr.HasOrbitals() )
     {
@@ -739,7 +738,8 @@ void QOrbitalWidget::OnSetFrame(size_t frame)
 
             m_render.ShowMolecularOrbital(m_orbital-1);
             m_bonshow = true;
-        }
+        } else m_bonshow=false;
+        emit drawDensity(m_bonshow);
     }
 }
 
