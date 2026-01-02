@@ -718,7 +718,8 @@ void QOrbitalWidget::OnSetFrame(size_t frame)
 {
     Q_ASSERT(m_world);
     if ( frame < 0 || frame >= m_world->Molecules().back().Frames().size() ) return;
-    QMessageBox::information(nullptr,"title","frame: "+QString::number(frame+1));
+    QMessageBox::information(nullptr,"title","frame: "+QString::number(frame+1)
+                             +"\n"+"orbital: "+QString::number(m_orbital));
     kryomol::Frame& fr=m_world->Molecules().back().Frames()[frame];
     if ( fr.HasOrbitals() )
     {
