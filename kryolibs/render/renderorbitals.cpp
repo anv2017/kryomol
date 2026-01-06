@@ -1036,6 +1036,7 @@ void RenderOrbitals::CalculateTransitionChange(size_t tc, OrbitalArray& transiti
     QApplication::restoreOverrideCursor();
 }
 
+#include <QMessageBox>
 void RenderOrbitals::CalculateDensityChange(size_t tc, OrbitalArray& transition)
 {
     QApplication::setOverrideCursor(QCursor(Qt::BusyCursor));

@@ -725,6 +725,8 @@ void QOrbitalWidget::OnSetFrame(size_t frame)
         this->ListOrbitals();
         m_render = kryomol::RenderOrbitals(m_world->Molecules().back().Frames()[frame]);
 
+        m_render.SetBeta(m_world->HasAlphaBetaOrbitals());
+
 
         if (m_orbital > 0)
         {
