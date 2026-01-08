@@ -100,7 +100,6 @@ void ConfManager::InitTree()
 
 void ConfManager::OnItemChanged(QTreeWidgetItem* item)
 {
-    qDebug() << "item here" << item << endl;
     if ( item == m_tree->topLevelItem(0) ) return;
     bool b;
     std::vector<bool> vb;
@@ -116,12 +115,6 @@ void ConfManager::OnItemChanged(QTreeWidgetItem* item)
         {
             vb.push_back( p->checkState(4) == Qt::Checked );
         }
-    }
-
-    std::cout << "b" << b << std::endl;
-    for(auto x : vb)
-    {
-        std::cout << x << std::endl;
     }
 
     emit visible(b,vb);

@@ -61,13 +61,10 @@ bool AcesParser::GetGeometry()
     }
   }
 
-  std::cerr << "In Aces Parser" << std::endl;
-
   if(!bfound) return false;
 
   if ( !pos.empty() )
   {
-      std::cout << "pushing molecule " << std::endl;
           Molecules()->push_back ( Molecule() );
   }
 

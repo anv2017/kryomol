@@ -597,7 +597,6 @@ void Molecule::SuperImpose(size_t refframe, const std::vector<size_t>& atoms)
             solution(1)/=t;
             solution(2)/=t;
             double angle=atan(t);
-            std::cout << "angle is " << (180*angle/M_PI) << std::endl;
 
             double cangle=cos(angle);
             double sangle=sin(angle);
@@ -609,7 +608,6 @@ void Molecule::SuperImpose(size_t refframe, const std::vector<size_t>& atoms)
             {
                 (*ct)=(q1^(*ct)^q).V();
             }
-            std::cout << Frames().at(frame) << std::endl;
 
         }
     }
@@ -695,7 +693,6 @@ void Molecule::EckartTransform(size_t refframe, const std::vector<size_t>& atoms
             solution(1)/=t;
             solution(2)/=t;
             double angle=atan(t);
-            std::cout << "angle is " << (180*angle/M_PI) << std::endl;
 
             double cangle=cos(angle);
             double sangle=sin(angle);
@@ -707,7 +704,6 @@ void Molecule::EckartTransform(size_t refframe, const std::vector<size_t>& atoms
             {
                 (*ct)=(q1^(*ct)^q).V();
             }
-            std::cout << Frames().at(frame) << std::endl;
 
         }
     }

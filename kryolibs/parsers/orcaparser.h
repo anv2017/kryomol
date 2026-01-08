@@ -50,6 +50,7 @@ private:
   bool GetFrequencies();
   bool GetNormalModes();
   bool GetNormalModeBlock(StringTokenizer& headertok);
+  void GetStates();
 
 
 private:

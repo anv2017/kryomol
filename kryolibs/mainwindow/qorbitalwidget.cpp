@@ -476,8 +476,8 @@ void QOrbitalWidget::OnShowSpinDensity()
 
 void QOrbitalWidget::OnOrbitalChange(QTreeWidgetItem* item)
 {
-    QTime timer;
-    timer.start();
+    /*QTime timer;
+    timer.start();*/
     m_bshowtotaldensity = false;
     m_bshowspindensity = false;
     m_bshowhomo = false;
@@ -507,7 +507,7 @@ void QOrbitalWidget::OnOrbitalChange(QTreeWidgetItem* item)
 
     emit drawDensity(m_bonshow);
 
-    std::cout << "time needed is" << timer.elapsed()  << std::endl;
+    //std::cout << "time needed is" << timer.elapsed()  << std::endl;
     if ((m_bonshow)&&(!_contoursGroupBox->isHidden()))
         m_plotspectrogram->FillSpectrogram();
 }

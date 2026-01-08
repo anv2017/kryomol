@@ -512,7 +512,7 @@ void GLVisor::ProcessOwnSelection ( int atom )
     m_selatoms.push_back ( atom );
     const Molecule& mol=*m_world->CurrentMolecule();
     const Frame& fr=m_world->CurrentMolecule()->CurrentFrame();
-    std::cout << "m_selmode=" << m_selmode << std::endl;
+   // std::cout << "m_selmode=" << m_selmode << std::endl;
     switch ( m_selmode )
     {
     case DISTANCES:

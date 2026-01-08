@@ -53,7 +53,7 @@ RingPerceptor::Edge RingPerceptor::Edge::operator+ ( RingPerceptor::Edge& b )
         std::vector<size_t>::reverse_iterator it;
         for ( it=a.Path().rbegin();it!=a.Path().rend();++it )
         {
-            std::cout << ( *it ) << std::endl;
+            //std::cout << ( *it ) << std::endl;
             newedge.Path().push_back ( *it );
         }
         std::vector<size_t>::iterator jjt;

@@ -15,7 +15,7 @@ using namespace kryomol;
 
 void OrbitalArray::CalculateExponential(const float Nx, const float Ny, const float Nz, const float step, const float cx, const float cy, const float cz, const float alpha, const float xs) //const float &cx, const float &cy, const float &cz)
 {
-    std::cout << "r,c,f" << m_rows << "," << m_columns << "," << m_files << std::endl;
+   // std::cout << "r,c,f" << m_rows << "," << m_columns << "," << m_files << std::endl;
 
     assert ( this->m_rows>0 && this->m_columns>0 && this->m_files>0);
     #ifdef WITH_SIMD
@@ -152,7 +152,7 @@ void OrbitalArray::CalculateOrbitalS( const OrbitalArray &exponential)
                 }
             }
         }
-        std::cout << std::endl;
+       // std::cout << std::endl;
     #endif
 }
 

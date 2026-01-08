@@ -910,8 +910,52 @@ bool OrcaParser::ParseUV ( std::streampos pos )
             ParseSolventShiftBlock(lines);
         }
     }
-    //Get transition vectors
-    //Get transition changes
+    m_file->clear();
+    m_file->seekg ( pos,std::ios::beg );
+
+    while(std::getline(*m_file,line))
+    {
+        if ( line.find("TD-DFT/TDA EXCITED STATES") != std::string::npos
+             || line.find("TD-DFT EXCITED STATES") != std::string::npos  )
+        {
+            GetStates();
+            break;
+        }
+
+    }
+
     return true;
+}
+
+void OrcaParser::GetStates()
+{
+    std::string line;
+    std::vector< std::vector<TransitionChange> > tcv;
+    std::getline(*m_file,line);
+    while(std::getline(*m_file,line))
+    {
+        std::vector<TransitionChange> tc;
+        if ( line.find("STATE") != std::string::npos )
+        {
+
+            while(std::getline(*m_file,line))
+            {
+                if ( line.find("->") == std::string::npos )
+                {
+                    break;
+                }
+                StringTokenizer tok(line," \n\t\r");
+                int i=std::stoi(tok.at(0));
+                int j=std::stoi(tok.at(2));
+                float cf=std::stof(tok.at(4));
+                tc.push_back(TransitionChange(i,j,cf));
+
+            }
+            tcv.push_back(tc);
+        }
+        if (line.find("-----") != std::string::npos ) break;
+    }
+    Molecules()->back().Frames().back().SetTransitionChanges(tcv);
+    return;
 }
 

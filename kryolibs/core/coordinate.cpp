@@ -215,8 +215,6 @@ Coordinate Coordinate::MiddlePoint(const Coordinate& a, const Coordinate& b)
 Coordinate Coordinate::RotAroundAxis(const Coordinate& c, const Coordinate& axisorigin, const Coordinate& axisend, float theta)
 {
   Coordinate axis=axisend-axisorigin;
-  std::cout << "axis is " << axis << std::endl;
-  std::cout << "theta is " << theta << std::endl;
   float kk=(sin(theta/2)/axis.Norm());
   Coordinate v1=axis*kk;
 
@@ -226,7 +224,6 @@ Coordinate Coordinate::RotAroundAxis(const Coordinate& c, const Coordinate& axis
   Quaternion q2(0,c-axisorigin);
 
   Quaternion q3=q^q2^q1;
-  std::cout << "q3 " << q3 << std::endl;
 
   return axisorigin+q3.V();
 

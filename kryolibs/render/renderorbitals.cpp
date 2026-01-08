@@ -922,7 +922,7 @@ void RenderOrbitals::CalculateSpinDensity()
 
     for (size_t i=0; i<m_orbitaldata.Coefficients().NColumns(); i++)
     {
-        std::cout << "Molecular Orbital: " << i << " of " << m_orbitaldata.Coefficients().NColumns()-1 << std::endl;
+       // std::cout << "Molecular Orbital: " << i << " of " << m_orbitaldata.Coefficients().NColumns()-1 << std::endl;
 
         CalculateMolecularOrbital(i,molecularorbital,false);
         CalculateMolecularOrbital(i,betaorbital,true);

@@ -150,7 +150,6 @@ float UVSpectrum::GetIntensityAt(float lambda,const std::vector<Sinusoid>& sdd)
 {
     //e=hc/\lambda
     constexpr float ltoev=PC::h*PC::jtoev*PC::c*1e9;
-    std::cout << ltoev << std::endl;
     float eval=ltoev/lambda;
     float prefactor;
     double uvfactor=2.870e4/std::sqrt(2*M_PI);
@@ -176,7 +175,6 @@ float UVSpectrum::GetIntensityAt(float lambda,const std::vector<Sinusoid>& sdd)
         //constexpr float stofwhm=2*std::sqrt(2*std::log(2));
         //This is the factor to convert standard deviation to FWHM
         float stofwhm=2*std::sqrt(2*std::log(2));
-        std::cout << stofwhm << std::endl;
         float sigma=s.m_fldecay/stofwhm; //FWHM
         float expfactor=(eval-deltae)/(sigma);
         float cd=(1/sigma)*deltae*s.m_flamplitude*exp(-( expfactor*expfactor )/2 );
